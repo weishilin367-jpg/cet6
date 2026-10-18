@@ -1,0 +1,2805 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#fdfcfa">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="六级冲刺">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>六级 55 天冲刺</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<script>if("serviceWorker" in navigator && location.protocol==="https:"){
+navigator.serviceWorker.register("./sw.js").catch(function(){});}</script>
+<style>
+/* 暖色调主题：奶油底 + 陶土橙 + 鼠尾草绿 */
+:root {
+  --bg: #fdfcfa;
+  --bg-2: #fdfcfa;
+  --card: #ffffff;
+  --card-2: #fbf6f0;
+  --ink: #3a2d26;
+  --ink2: #6f5f54;
+  --ink3: #9c8a7d;
+  --line: #efe5da;
+  --line-2: #f5eee7;
+
+  --acc: #c1613c;
+  --acc-deep: #a94f2e;
+  --acc-soft: #fbeade;
+  --ok: #6f8f68;
+  --ok-soft: #eaf2e6;
+  --warn: #c08a2e;
+  --warn-soft: #fbf0d9;
+  --bad: #ac4a3e;
+  --bad-soft: #f9e5e0;
+
+  --radius: 18px;
+  --radius-sm: 12px;
+  --shadow: 0 1px 2px rgba(90, 60, 40, .04), 0 8px 24px rgba(90, 60, 40, .06);
+  --shadow-sm: 0 1px 2px rgba(90, 60, 40, .05), 0 2px 8px rgba(90, 60, 40, .04);
+}
+
+/* 固定亮色主题：不跟随系统深色模式，避免在深色设备上变成暖黑底 */
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  font-size: 15.5px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  padding-bottom: calc(78px + env(safe-area-inset-bottom));
+  background: var(--bg);
+}
+
+.wrap { max-width: 620px; margin: 0 auto; padding: 0 15px; }
+
+/* ---------- 顶栏 ---------- */
+.topbar {
+  position: sticky; top: 0; z-index: 20;
+  padding: calc(12px + env(safe-area-inset-top)) 0 12px;
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter: blur(14px) saturate(1.1);
+}
+.topbar .wrap { display: flex; align-items: center; gap: 10px; }
+.topbar h1 {
+  font-size: 18px; margin: 0; font-weight: 700; letter-spacing: .3px;
+  color: var(--ink);
+}
+.topbar .sub { color: var(--ink3); font-size: 12px; margin-top: 2px; letter-spacing: .2px; }
+.topbar .spacer { flex: 1; }
+.icon-btn {
+  width: 40px; height: 40px; border-radius: 14px;
+  border: 1px solid var(--line); background: var(--card); color: var(--acc);
+  display: grid; place-items: center; font-size: 17px; cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ---------- 卡片 ---------- */
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow);
+  margin-bottom: 13px;
+  border: 1px solid var(--line);
+}
+.card > h2 {
+  font-size: 13.5px; margin: 0 0 12px; color: var(--ink2);
+  font-weight: 650; letter-spacing: .6px;
+  display: flex; align-items: center; gap: 7px;
+}
+.card > h2::before {
+  content: ''; width: 5px; height: 5px; border-radius: 99px;
+  background: var(--acc); opacity: .75;
+}
+.card.tight { padding: 13px 16px; }
+
+/* ---------- 今日概览 ---------- */
+.hero { display: flex; align-items: center; gap: 14px; }
+.hero .dnum {
+  font-size: 36px; font-weight: 800; letter-spacing: -1.2px; line-height: 1;
+  color: var(--acc); font-variant-numeric: tabular-nums;
+}
+.hero .dsub { color: var(--ink3); font-size: 12px; margin-top: 5px; }
+.hero .mid { flex: 1; min-width: 0; }
+.hero .mid .t { font-size: 13px; color: var(--ink2); }
+.hero .mid .b { font-size: 13.5px; color: var(--ink); margin-top: 3px; font-weight: 550; }
+
+.kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin-top: 14px; }
+.kpi {
+  background: var(--card-2); border-radius: var(--radius-sm); padding: 10px 11px;
+  border: 1px solid var(--line-2);
+}
+.kpi .k { font-size: 11px; color: var(--ink3); letter-spacing: .3px; }
+.kpi .v { font-size: 18px; font-weight: 700; margin-top: 2px; color: var(--ink); font-variant-numeric: tabular-nums; }
+
+/* ---------- 任务列表 ---------- */
+.tasks { list-style: none; margin: 0; padding: 0; }
+.task {
+  display: flex; gap: 12px; align-items: flex-start; padding: 12px 2px;
+  border-top: 1px solid var(--line-2); cursor: pointer;
+}
+.task:first-child { border-top: 0; padding-top: 4px; }
+.task .box {
+  width: 23px; height: 23px; border-radius: 50%; border: 1.6px solid var(--line);
+  flex: 0 0 23px; margin-top: 1px; display: grid; place-items: center;
+  color: #fff; font-size: 12px; transition: .18s ease; background: var(--card);
+}
+.task:active .box { transform: scale(.92); }
+.task.done .box { background: var(--ok); border-color: var(--ok); }
+.task.part .box { background: var(--warn); border-color: var(--warn); }
+.task.skip .box { background: var(--ink3); border-color: var(--ink3); }
+.task.done .t-title { color: var(--ink3); text-decoration: line-through; text-decoration-thickness: 1px; }
+.t-body { flex: 1; min-width: 0; }
+.t-title { font-size: 14.5px; line-height: 1.5; }
+.t-meta { font-size: 11.5px; color: var(--ink3); margin-top: 5px; display: flex; gap: 7px; flex-wrap: wrap; align-items: center; }
+
+.pill {
+  display: inline-block; padding: 1.5px 8px; border-radius: 99px;
+  font-size: 10.5px; background: var(--card-2); color: var(--ink2);
+  border: 1px solid var(--line-2); letter-spacing: .2px;
+}
+.pill.acc { background: var(--acc-soft); color: var(--acc-deep); border-color: transparent; }
+.pill.warn { background: var(--warn-soft); color: #8f6617; border-color: transparent; }
+.pill.ok { background: var(--ok-soft); color: #4d6b47; border-color: transparent; }
+
+/* ---------- 提示条 ---------- */
+.notice {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 13px 15px 13px 13px; border-radius: 14px; font-size: 13px;
+  margin-bottom: 13px;
+  background: var(--acc-soft); color: var(--acc-deep);
+  border-left: 3px solid var(--acc);
+}
+.notice.warn { background: var(--warn-soft); color: #8a5f12; border-left-color: var(--warn); }
+.notice .x { margin-left: auto; opacity: .75; cursor: pointer; white-space: nowrap; font-size: 12px; }
+
+/* ---------- 计划列表 ---------- */
+.week { margin-bottom: 11px; }
+.week-head {
+  display: flex; align-items: center; gap: 9px; padding: 13px 15px;
+  background: var(--card); border-radius: 15px; font-size: 13px; cursor: pointer;
+  box-shadow: var(--shadow-sm); border: 1px solid var(--line);
+}
+.week-head .wt {
+  font-weight: 750; font-size: 13px; color: var(--acc);
+  background: var(--acc-soft); padding: 2px 9px; border-radius: 8px;
+}
+.week-head .ws { color: var(--ink2); font-size: 12.5px; }
+.week-head .prog { margin-left: auto; color: var(--ink3); font-size: 12px; font-variant-numeric: tabular-nums; }
+.week-body { padding: 2px 0 0; }
+.day {
+  display: flex; align-items: center; gap: 10px; padding: 11px 15px;
+  background: var(--card); border-radius: 13px; margin-top: 6px; font-size: 13px;
+  cursor: pointer; border: 1px solid var(--line);
+}
+.day .dt { width: 62px; color: var(--ink2); font-variant-numeric: tabular-nums; }
+.day .dm { margin-left: auto; color: var(--ink3); font-size: 12px; }
+.day.today {
+  border-color: var(--acc);
+  background: linear-gradient(180deg, var(--acc-soft), var(--card) 70%);
+}
+.day .dot { width: 7px; height: 7px; border-radius: 99px; background: var(--line); }
+.day .dot.full { background: var(--ok); }
+.day .dot.some { background: var(--warn); }
+.day-tasks { margin: 6px 0 0; padding: 0 4px; }
+
+/* ---------- 真题矩阵 ---------- */
+.paper {
+  display: flex; align-items: center; gap: 10px; padding: 11px 2px;
+  border-top: 1px solid var(--line-2); cursor: pointer;
+}
+.paper:first-of-type { border-top: 0; padding-top: 4px; }
+.paper .pn { width: 92px; font-size: 12.5px; color: var(--ink); }
+.cells { display: flex; gap: 6px; margin-left: auto; }
+.cell {
+  width: 34px; height: 30px; border-radius: 10px;
+  background: var(--card-2); color: var(--ink3);
+  display: grid; place-items: center; font-size: 11px; font-weight: 650;
+  border: 1px solid var(--line-2);
+}
+.cell.done { background: var(--ok-soft); color: #4d6b47; border-color: transparent; }
+.cell.mock { background: var(--acc-soft); color: var(--acc-deep); border-color: transparent; }
+.cell.brief { background: var(--warn-soft); color: #8f6617; border-color: transparent; }
+.cell.skip { background: var(--bad-soft); color: var(--bad); border-color: transparent; }
+
+/* ---------- 通用 ---------- */
+.row { display: flex; gap: 10px; }
+.row > * { flex: 1; }
+button {
+  font: inherit; border: 0; border-radius: 13px; padding: 12px 15px; cursor: pointer;
+  background: var(--acc); color: #fff; font-weight: 650; font-size: 14.5px;
+  letter-spacing: .2px; transition: .15s ease;
+  box-shadow: 0 2px 8px rgba(193, 97, 60, .22);
+}
+button:active { transform: translateY(1px); box-shadow: none; }
+button.ghost {
+  background: var(--card); color: var(--ink); border: 1px solid var(--line);
+  font-weight: 550; box-shadow: var(--shadow-sm);
+}
+button.sm { padding: 8px 12px; font-size: 13px; border-radius: 11px; }
+button:disabled { opacity: .5; }
+
+input, select, textarea {
+  font: inherit; width: 100%; padding: 10px 12px; border-radius: 12px;
+  border: 1px solid var(--line); background: var(--card); color: var(--ink);
+}
+input:focus, textarea:focus { outline: 2px solid var(--acc-soft); border-color: var(--acc); }
+label.f { display: block; margin-bottom: 12px; font-size: 12px; color: var(--ink2); }
+label.f > span { display: block; margin-bottom: 6px; letter-spacing: .2px; }
+.hint { font-size: 12.5px; color: var(--ink3); line-height: 1.6; }
+.mono { font-variant-numeric: tabular-nums; }
+.empty { text-align: center; color: var(--ink3); font-size: 13px; padding: 28px 0; }
+hr.sep { border: 0; border-top: 1px solid var(--line-2); margin: 13px 0; }
+
+/* ---------- 底部导航 ---------- */
+.tabbar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+  display: flex;
+  background: color-mix(in srgb, var(--card) 90%, transparent);
+  backdrop-filter: blur(16px) saturate(1.2);
+  border-top: 1px solid var(--line-2);
+  padding: 7px 0 calc(8px + env(safe-area-inset-bottom));
+}
+.tabbar button {
+  flex: 1; background: none; color: var(--ink3); font-size: 11px; font-weight: 550;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 5px 0; box-shadow: none; border-radius: 0; letter-spacing: .3px;
+}
+.tabbar button .ti { font-size: 19px; line-height: 1; opacity: .8; }
+.tabbar button.on { color: var(--acc); }
+.tabbar button.on .ti { opacity: 1; transform: translateY(-1px); }
+
+/* ---------- 底部弹层 ---------- */
+.sheet-mask {
+  position: fixed; inset: 0; background: rgba(58, 45, 38, .42); z-index: 40;
+  display: flex; align-items: flex-end; justify-content: center;
+  animation: fade .16s ease; backdrop-filter: blur(2px);
+}
+.sheet {
+  width: 100%; max-width: 620px; background: var(--card);
+  border-radius: 24px 24px 0 0;
+  padding: 20px 18px calc(22px + env(safe-area-inset-bottom));
+  max-height: 86vh; overflow: auto;
+  animation: up .2s cubic-bezier(.2, .8, .3, 1);
+  box-shadow: 0 -8px 40px rgba(90, 60, 40, .18);
+}
+.sheet h3 { margin: 0 0 6px; font-size: 16.5px; line-height: 1.45; }
+.sheet .sub { color: var(--ink3); font-size: 12px; margin-bottom: 16px; }
+@keyframes up { from { transform: translateY(26px); opacity: .5; } to { transform: none; opacity: 1; } }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* ---------- toast ---------- */
+#toast {
+  position: fixed; left: 50%; bottom: calc(94px + env(safe-area-inset-bottom));
+  transform: translateX(-50%); background: #4a3428; color: #fff8f2;
+  padding: 11px 18px; border-radius: 99px; font-size: 13px; z-index: 60;
+  opacity: 0; pointer-events: none; transition: .22s ease; max-width: 86vw;
+  text-align: center; box-shadow: 0 6px 20px rgba(74, 52, 40, .3);
+}
+#toast.on { opacity: 1; transform: translateX(-50%) translateY(-2px); }
+
+/* ---------- 图表 ---------- */
+.spark { width: 100%; height: 100px; display: block; }
+.legend { display: flex; gap: 15px; font-size: 11.5px; color: var(--ink3); margin-top: 8px; flex-wrap: wrap; }
+.legend i { display: inline-block; width: 8px; height: 8px; border-radius: 99px; margin-right: 5px; }
+
+.heat { display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; }
+.heat i { aspect-ratio: 1; border-radius: 5px; background: var(--card-2); display: block; border: 1px solid var(--line-2); }
+.heat i.l1 { background: color-mix(in srgb, var(--ok) 26%, var(--card)); border-color: transparent; }
+.heat i.l2 { background: color-mix(in srgb, var(--ok) 52%, var(--card)); border-color: transparent; }
+.heat i.l3 { background: var(--ok); border-color: transparent; }
+
+details.acc { border-top: 1px solid var(--line-2); padding: 12px 0; }
+details.acc:first-of-type { border-top: 0; }
+details.acc > summary {
+  cursor: pointer; font-size: 14px; font-weight: 650; list-style: none;
+  display: flex; align-items: center; gap: 8px; color: var(--ink);
+}
+details.acc > summary::-webkit-details-marker { display: none; }
+details.acc > summary::after { content: '＋'; margin-left: auto; color: var(--ink3); font-weight: 400; font-size: 15px; }
+details.acc[open] > summary::after { content: '－'; }
+details.acc .body { padding-top: 9px; font-size: 13px; color: var(--ink2); }
+
+/* ---------- 引导 ---------- */
+.onboard { padding: 38px 0 22px; }
+.onboard h1 { font-size: 26px; letter-spacing: .5px; margin: 0 0 10px; line-height: 1.3; }
+.onboard h1::after {
+  content: ''; display: block; width: 34px; height: 3px; border-radius: 99px;
+  background: var(--acc); margin-top: 12px; opacity: .8;
+}
+.onboard p { color: var(--ink2); font-size: 14px; margin: 0 0 24px; line-height: 1.7; }
+.steps { font-size: 12px; color: var(--ink3); margin-bottom: 8px; }
+
+@media (max-width: 360px) {
+  .hero .dnum { font-size: 30px; }
+  .cell { width: 30px; }
+  .paper .pn { width: 80px; font-size: 12px; }
+  .day .dt { width: 56px; }
+}
+
+@media print {
+  body { background: #fff; }
+  .tabbar, .topbar .icon-btn, button, .notice { display: none !important; }
+  .card, .week-head, .day { box-shadow: none; border: 1px solid #ddd; }
+  body { padding-bottom: 0; }
+}
+
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="wrap">
+    <div>
+      <h1>六级 55 天</h1>
+      <div class="sub" id="tb-sub">加载中…</div>
+    </div>
+    <div class="spacer"></div>
+    <button class="icon-btn" data-act="backup-quick" title="复制备份码">⤓</button>
+  </div>
+</div>
+
+<div class="wrap" id="view"></div>
+
+<nav class="tabbar">
+  <button data-act="tab" data-tab="today"><span class="ti">◎</span>今日</button>
+  <button data-act="tab" data-tab="plan"><span class="ti">▤</span>计划</button>
+  <button data-act="tab" data-tab="papers"><span class="ti">✎</span>真题</button>
+  <button data-act="tab" data-tab="more"><span class="ti">⋯</span>更多</button>
+</nav>
+
+<div id="toast"></div>
+<script>
+/* 六级 55 天冲刺 · 单文件应用 */
+(function(){
+"use strict";
+// ---- src/engine/util.js ----
+// 通用工具：日期一律用本地 YYYY-MM-DD 字符串，避免时区偏移
+const DAY_MS = 86400000;
+
+function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+
+function ymd(d) {
+  return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+}
+
+function parseYmd(s) {
+  const p = String(s).split('-');
+  return new Date(+p[0], +p[1] - 1, +p[2]);
+}
+
+function addDays(s, n) {
+  const d = parseYmd(s);
+  d.setDate(d.getDate() + n);
+  return ymd(d);
+}
+
+function diffDays(a, b) {
+  return Math.round((parseYmd(b) - parseYmd(a)) / DAY_MS);
+}
+
+function dow(s) { return parseYmd(s).getDay(); }
+
+function isWeekend(s) {
+  const d = dow(s);
+  return d === 0 || d === 6;
+}
+
+const DOW_CN = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+function dowCN(s) { return DOW_CN[dow(s)]; }
+
+function rangeDays(a, b) {
+  const out = [];
+  let c = a;
+  let guard = 0;
+  while (c <= b && guard < 500) { out.push(c); c = addDays(c, 1); guard += 1; }
+  return out;
+}
+
+function mmdd(s) { return s.slice(5).replace('-', '/'); }
+
+function todayStr() { return ymd(new Date()); }
+
+function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+
+function sumBy(list, f) {
+  let s = 0;
+  for (const x of list) s += (f(x) || 0);
+  return s;
+}
+
+function groupBy(list, f) {
+  const m = new Map();
+  for (const x of list) {
+    const k = f(x);
+    if (!m.has(k)) m.set(k, []);
+    m.get(k).push(x);
+  }
+  return m;
+}
+
+function uniq(list) { return Array.from(new Set(list)); }
+
+function pct(a, b) { return b > 0 ? Math.round((a / b) * 100) : 0; }
+
+// ---- src/data/plan.js ----
+// 55 天冲刺计划生成器
+// 内容只做五件事：
+//   1. 单词背诵   2. 听力/阅读真题演练   3. 翻译（背词块 + 单句 + 全篇）
+//   4. 写作模板背诵（4 段：背 → 默写 → 仿写）  5. 真题模考
+
+const TOTAL_PAPERS = 18;
+
+// 你的真题：2023.12 → 2026.06，每期三套
+const SESSIONS = ['2023.12', '2024.06', '2024.12', '2025.06', '2025.12', '2026.06'];
+
+// 模考只用最新的 6 套（2025.12 三套 + 2026.06 三套），从旧到新排
+const MOCK_BY_WEEK = { 0: 13, 2: 14, 3: 15, 4: 16, 5: 17, 6: 18 };
+const MOCK_PAPERS = Object.values(MOCK_BY_WEEK);
+
+// 平日练习用较早的 12 套（2023.12 → 2025.06），从旧到新
+const SPLIT_BY_WEEK = {
+  1: [1, 2],
+  2: [3, 4],
+  3: [5, 6],
+  4: [7, 8],
+  5: [9, 10],
+  6: [11, 12]
+};
+
+function sessionOf(n) {
+  return SESSIONS[Math.floor((n - 1) / 3)];
+}
+function paperDefaultLabel(n) {
+  return sessionOf(n) + ' ' + ['卷一', '卷二', '卷三'][(n - 1) % 3];
+}
+
+// 只背这 4 段，一个议论文的完整骨架
+const TEMPLATES = {
+  A1: { name: '开头段：现象 + 立场', n: 3 },
+  A2: { name: '主体段：论点 + 例子', n: 2 },
+  A3: { name: '让步段：承认合理 + 转折', n: 2 },
+  A4: { name: '结尾段：重申 + 一句前瞻', n: 3 }
+};
+
+const CHUNKS = {
+  T1: '文化类词块 15 个（非遗 / 节气 / 戏曲）',
+  T2: '社会类词块 15 个（乡村 / 碳中和 / 高铁）',
+  T3: '教育科技词块 15 个（AI / 在线教育 / 创新）',
+  T4: '历史建筑词块 15 个（朝代 / 园林 / 故宫）'
+};
+
+const WEEK_META = [
+  { title: '起步周', theme: '背开头段，周六摸底' },
+  { title: '主体段', theme: '论点 + 例子，听力阅读上真题' },
+  { title: '让步段', theme: '承认对方合理再转折' },
+  { title: '结尾段', theme: '四段齐了，开始连背' },
+  { title: '巩固', theme: '复背前两段，阅读加匹配' },
+  { title: '检验周', theme: '用真题写一次全篇' },
+  { title: '合默', theme: '四段连默，再检验一次翻译' },
+  { title: '收官', theme: '默写冲刺，最后一次全篇' }
+];
+
+// 目标分决定「量」：背多少词、要不要加练
+const TIERS = {
+  425: {
+    key: 425, name: '稳过 425', vocab: 30, vocabMin: 25, extraBank: false, sundayRecap: false,
+    desc: '单词 30/天；阅读按周交替练；不加额外任务（这个档位最省时间）'
+  },
+  500: {
+    key: 500, name: '500–550', vocab: 38, vocabMin: 27, extraBank: false, sundayRecap: true,
+    desc: '单词 38/天；周日加一次四段模板合背'
+  },
+  550: {
+    key: 550, name: '550+', vocab: 48, vocabMin: 30, extraBank: true, sundayRecap: true,
+    desc: '单词 48/天；每周二加一篇选词填空；周日合背'
+  }
+};
+
+function tierOf(target) {
+  const n = Number(target) || 425;
+  if (n >= 540) return TIERS[550];
+  if (n >= 470) return TIERS[500];
+  return TIERS[425];
+}
+
+const KIND_LABEL = {
+  vocab: '单词',
+  listen: '听力',
+  read: '阅读',
+  write: '写作',
+  trans: '翻译',
+  mock: '模考',
+  review: '复盘',
+  method: '网课',
+  ops: '准备',
+  sprint: '冲刺'
+};
+
+function paperId(n) { return 'p' + String(n).padStart(2, '0'); }
+function paperNo(n) { return String(n).padStart(2, '0'); }
+
+function makePapers(labels) {
+  const out = [];
+  for (let i = 1; i <= TOTAL_PAPERS; i++) {
+    out.push({
+      id: paperId(i),
+      n: i,
+      label: (labels && labels[i - 1]) || paperDefaultLabel(i),
+      // role: 这套题在计划里是拿来模考还是平日练
+      role: MOCK_PAPERS.indexOf(i) >= 0 ? 'mock' : 'practice',
+      // mode: none 未用 / mock 全真模考 / practice 平日练习（含半套）
+      mode: 'none',
+      mods: {
+        L: { st: 'todo', right: null, total: 25 },
+        R: { st: 'todo', right: null, total: 30 },
+        W: { st: 'todo', score: null },
+        T: { st: 'todo', score: null }
+      }
+    });
+  }
+  return out;
+}
+
+function mondayOf(s) { return addDays(s, -((dow(s) + 6) % 7)); }
+
+function defaultConfig() {
+  return {
+    startDate: '2026-10-19',
+    examDate: '2026-12-12',
+    weekdayMin: 90,
+    weekendMin: 180,
+    vocabPerDay: 30,
+    target: 425
+  };
+}
+
+function buildPlan(cfgIn) {
+  const cfg = Object.assign(defaultConfig(), cfgIn || {});
+  const tier = tierOf(cfg.target);
+  const per = tier.vocab;
+  const lastStudy = addDays(cfg.examDate, -1);
+  const tasks = [];
+  let seq = 0;
+
+  const add = (date, d) => {
+    if (date < cfg.startDate || date > lastStudy) return;
+    seq += 1;
+    tasks.push({
+      id: 't' + String(seq).padStart(3, '0'),
+      date: date,
+      kind: d.kind,
+      paper: d.paper || null,
+      mods: d.mods || [],
+      title: d.title,
+      min: d.min,
+      limit: d.limit || d.min,
+      unit: d.unit || null,
+      note: d.note || '',
+      half: !!d.half,
+      st: 'todo',
+      actual: 0,
+      doneAmount: 0,
+      moves: 0,
+      src: 'plan'
+    });
+  };
+
+  const V = (date, group, min) => {
+    const from = (group - 1) * per + 1;
+    const to = group * per;
+    const box = min || tier.vocabMin;
+    return add(date, {
+      kind: 'vocab',
+      title: '单词第 ' + group + ' 组（第 ' + from + '–' + to + ' 词，限时 ' + box + ' 分钟）',
+      min: box, limit: box,
+      unit: { n: per, u: '个词' }
+    });
+  };
+
+  // 组合模板的名字：单个用全名，多个用简写，避免标题过长
+  const SHORT = { A1: '开头', A2: '主体', A3: '让步', A4: '结尾' };
+  const nameOf = keys => {
+    const list = keys.split('+');
+    if (list.length === 1) return list[0] + ' ' + TEMPLATES[list[0]].name;
+    if (list.length === 4) return 'A1–A4 四段';
+    return list.join('+') + ' ' + list.map(k => SHORT[k]).join('+');
+  };
+  const countOf = keys => keys.split('+').reduce((s, k) => s + TEMPLATES[k].n, 0);
+
+  // 背模板（15 分钟）
+  const LEARN = (date, keys) => add(date, {
+    kind: 'write',
+    title: '背模板 ' + nameOf(keys) + '（' + countOf(keys) + ' 句，限时 15 分钟）',
+    min: 15, limit: 15,
+    unit: { n: countOf(keys), u: '句' }
+  });
+
+  // 默写模板
+  const DICT = (date, keys) => add(date, {
+    kind: 'write',
+    title: '默写模板 ' + nameOf(keys) + '（' + countOf(keys) + ' 句，限时 ' + (countOf(keys) * 2) + ' 分钟）',
+    min: 10, limit: countOf(keys) * 2,
+    unit: { n: countOf(keys), u: '句' }
+  });
+
+  // 仿写一段（只做 4 次，每段一次）
+  const IMIT = (date, key) => {
+    const t = TEMPLATES[key];
+    return add(date, {
+      kind: 'write',
+      title: '仿写 ' + key + '｜用「' + t.name + '」写一段（3–5 句，限时 20 分钟）',
+      min: 30, limit: 20,
+      unit: { n: 1, u: '段' }
+    });
+  };
+
+  const CHUNK = (date, key) => add(date, {
+    kind: 'trans',
+    title: '背 ' + CHUNKS[key] + '（限时 8 分钟自测）',
+    min: 15, limit: 8,
+    unit: { n: 15, u: '个词块' }
+  });
+
+  const SENT = (date, n, min) => add(date, {
+    kind: 'trans',
+    title: '单句翻译 ' + n + ' 句（用背过的词块，限时 ' + (n * 3) + ' 分钟）',
+    min: min, limit: n * 3,
+    unit: { n: n, u: '句' }
+  });
+
+  const base = mondayOf(cfg.startDate);
+  const D = (w, k) => addDays(base, w * 7 + k);
+
+  // ---------------- 第 0 周：起步（单词 + 写译，周六摸底） ----------------
+  {
+    const d = k => D(0, k);
+    V(d(0), 1);
+    LEARN(d(0), 'A1');
+    CHUNK(d(0), 'T1');
+
+    V(d(1), 2);
+    DICT(d(1), 'A1');
+    IMIT(d(1), 'A1');
+
+    V(d(2), 3);
+    CHUNK(d(2), 'T2');
+    SENT(d(2), 8, 40);
+
+    V(d(3), 4);
+    SENT(d(3), 5, 25);
+
+    V(d(4), 5);
+    add(d(4), {
+      kind: 'vocab',
+      title: '单词 1–5 组自测（限时 15 分钟，只测不学）',
+      min: 20, limit: 15, unit: { n: per * 5, u: '个词' }
+    });
+    SENT(d(4), 5, 25);
+
+    V(d(5), 6);
+    add(d(5), {
+      kind: 'mock', paper: paperId(MOCK_BY_WEEK[0]), mods: ['L', 'R', 'W', 'T'],
+      title: '全真模考①：' + paperDefaultLabel(MOCK_BY_WEEK[0]) + '（限时 130 分钟，一次做完）',
+      min: 140, limit: 130, unit: { n: 1, u: '套' }
+    });
+
+    V(d(6), 7);
+    SENT(d(6), 5, 25);
+  }
+
+  // ---------------- 第 1 周：主体段 + 真题分项（周末半套） ----------------
+  {
+    const d = k => D(1, k);
+    const A = SPLIT_BY_WEEK[1][0], B = SPLIT_BY_WEEK[1][1];
+    V(d(0), 8);
+    LEARN(d(0), 'A2');
+    CHUNK(d(0), 'T1');
+    SENT(d(0), 3, 15);
+
+    V(d(1), 9);
+    add(d(1), {
+      kind: 'read', paper: paperId(A), mods: ['R'],
+      title: '真题 ' + paperNo(A) + '・仔细阅读 Passage 1–2（10 题，限时 16 分钟，做完标错因）',
+      min: 30, limit: 16, unit: { n: 10, u: '题' }
+    });
+    add(d(1), {
+      kind: 'read', paper: paperId(A), mods: [],
+      title: '真题 ' + paperNo(A) + '・长篇阅读匹配（10 题，限时 10 分钟）',
+      min: 20, limit: 10, unit: { n: 10, u: '题' }
+    });
+
+    V(d(2), 10);
+    DICT(d(2), 'A2');
+    IMIT(d(2), 'A2');
+
+    V(d(3), 11);
+    add(d(3), {
+      kind: 'listen', paper: paperId(A), mods: ['L'],
+      title: '真题 ' + paperNo(A) + '・听力 25 题（限时 30 分钟，错题回听 1 段）',
+      min: 50, limit: 30, unit: { n: 25, u: '题' }
+    });
+
+    V(d(4), 12);
+    SENT(d(4), 8, 40);
+
+    V(d(5), 13);
+    add(d(5), {
+      kind: 'mock', paper: paperId(B), mods: ['L', 'R'], half: true,
+      title: '半套限时：真题 ' + paperNo(B) + '（听力 30 分钟 + 阅读 40 分钟）',
+      min: 70, limit: 70, unit: { n: 1, u: '套' }
+    });
+    SENT(d(5), 8, 40);
+
+    V(d(6), 14);
+    add(d(6), {
+      kind: 'vocab',
+      title: '单词 8–14 组周测（限时 20 分钟，只测不学）',
+      min: 20, limit: 20, unit: { n: per * 7, u: '个词' }
+    });
+    CHUNK(d(6), 'T2');
+  }
+
+  // ---------------- 第 2–3 周：让步段 / 结尾段 ----------------
+  const LEARN_KEY = { 2: 'A3', 3: 'A4' };
+  const CHUNK_KEY = { 2: 'T3', 3: 'T4', 4: 'T1', 5: 'T2', 6: 'T3' };
+
+  for (let w = 2; w <= 3; w++) {
+    const d = k => D(w, k);
+    const split = SPLIT_BY_WEEK[w];
+    const A = split[0], B = split[1], MK = MOCK_BY_WEEK[w];
+
+    V(d(0), w * 7 + 1);
+    LEARN(d(0), LEARN_KEY[w]);
+    CHUNK(d(0), CHUNK_KEY[w]);
+    SENT(d(0), 3, 15);
+
+    V(d(1), w * 7 + 2);
+    add(d(1), {
+      kind: 'read', paper: paperId(A), mods: ['R'],
+      title: '真题 ' + paperNo(A) + '・仔细阅读 Passage 1–2（10 题，限时 16 分钟，做完标错因）',
+      min: 30, limit: 16, unit: { n: 10, u: '题' }
+    });
+    add(d(1), {
+      kind: 'read', paper: paperId(A), mods: [],
+      title: '真题 ' + paperNo(A) + '・长篇阅读匹配（10 题，限时 10 分钟）',
+      min: 20, limit: 10, unit: { n: 10, u: '题' }
+    });
+
+    V(d(2), w * 7 + 3);
+    DICT(d(2), LEARN_KEY[w]);
+    IMIT(d(2), LEARN_KEY[w]);
+
+    V(d(3), w * 7 + 4);
+    add(d(3), {
+      kind: 'listen', paper: paperId(A), mods: ['L'],
+      title: '真题 ' + paperNo(A) + '・听力 25 题（限时 30 分钟，错题回听 1 段）',
+      min: 50, limit: 30, unit: { n: 25, u: '题' }
+    });
+
+    V(d(4), w * 7 + 5);
+    SENT(d(4), 8, 40);
+
+    V(d(5), w * 7 + 6);
+    add(d(5), {
+      kind: 'mock', paper: paperId(MK), mods: ['L', 'R', 'W', 'T'],
+      title: '全真模考：真题 ' + paperNo(MK) + '（限时 130 分钟，严格计时）',
+      min: 140, limit: 130, unit: { n: 1, u: '套' }
+    });
+
+    V(d(6), w * 7 + 7);
+    add(d(6), {
+      kind: 'mock', paper: paperId(B), mods: ['L', 'R'], half: true,
+      title: '半套限时：真题 ' + paperNo(B) + '（听力 30 分钟 + 阅读 40 分钟）',
+      min: 70, limit: 70, unit: { n: 1, u: '套' }
+    });
+    add(d(6), {
+      kind: 'vocab',
+      title: '本周单词周测（限时 20 分钟，只测不学）',
+      min: 20, limit: 20, unit: { n: per * 2, u: '个词' }
+    });
+  }
+
+  // ---------------- 第 4 周：复背前两段 ----------------
+  {
+    const w = 4;
+    const d = k => D(w, k);
+    const split = SPLIT_BY_WEEK[w];
+    const A = split[0], B = split[1], MK = MOCK_BY_WEEK[w];
+
+    V(d(0), 29);
+    LEARN(d(0), 'A1+A2');
+    CHUNK(d(0), 'T1');
+    SENT(d(0), 3, 15);
+
+    V(d(1), 30);
+    add(d(1), {
+      kind: 'read', paper: paperId(A), mods: ['R'],
+      title: '真题 ' + paperNo(A) + '・仔细阅读 Passage 1–2（10 题，限时 16 分钟，做完标错因）',
+      min: 30, limit: 16, unit: { n: 10, u: '题' }
+    });
+    add(d(1), {
+      kind: 'read', paper: paperId(A), mods: [],
+      title: '真题 ' + paperNo(A) + '・选词填空（10 题，限时 8 分钟，先判词性）',
+      min: 20, limit: 8, unit: { n: 10, u: '题' }
+    });
+
+    V(d(2), 31);
+    DICT(d(2), 'A1+A2');
+    SENT(d(2), 8, 30);
+
+    V(d(3), 32);
+    add(d(3), {
+      kind: 'listen', paper: paperId(A), mods: ['L'],
+      title: '真题 ' + paperNo(A) + '・听力 25 题（限时 30 分钟，错题回听 1 段）',
+      min: 50, limit: 30, unit: { n: 25, u: '题' }
+    });
+
+    V(d(4), 33);
+    SENT(d(4), 8, 40);
+
+    V(d(5), 34);
+    add(d(5), {
+      kind: 'mock', paper: paperId(MK), mods: ['L', 'R', 'W', 'T'],
+      title: '全真模考：真题 ' + paperNo(MK) + '（限时 130 分钟，严格计时）',
+      min: 140, limit: 130, unit: { n: 1, u: '套' }
+    });
+
+    V(d(6), 35);
+    add(d(6), {
+      kind: 'mock', paper: paperId(B), mods: ['L', 'R'], half: true,
+      title: '半套限时：真题 ' + paperNo(B) + '（听力 30 分钟 + 阅读 40 分钟）',
+      min: 70, limit: 70, unit: { n: 1, u: '套' }
+    });
+    add(d(6), {
+      kind: 'vocab',
+      title: '本周单词周测（限时 20 分钟，只测不学）',
+      min: 20, limit: 20, unit: { n: per * 2, u: '个词' }
+    });
+  }
+
+  // ---------------- 第 5 周：复背后两段 + 检验① ----------------
+  {
+    const w = 5;
+    const d = k => D(w, k);
+    const split = SPLIT_BY_WEEK[w];
+    const A = split[0], B = split[1], MK = MOCK_BY_WEEK[w];
+
+    V(d(0), 36);
+    LEARN(d(0), 'A3+A4');
+    CHUNK(d(0), 'T2');
+    SENT(d(0), 3, 15);
+
+    V(d(1), 37);
+    add(d(1), {
+      kind: 'read', paper: paperId(A), mods: ['R'],
+      title: '真题 ' + paperNo(A) + '・仔细阅读 Passage 1–2（10 题，限时 16 分钟，做完标错因）',
+      min: 30, limit: 16, unit: { n: 10, u: '题' }
+    });
+    add(d(1), {
+      kind: 'read', paper: paperId(A), mods: [],
+      title: '真题 ' + paperNo(A) + '・长篇阅读匹配（10 题，限时 10 分钟）',
+      min: 20, limit: 10, unit: { n: 10, u: '题' }
+    });
+
+    V(d(2), 38);
+    DICT(d(2), 'A3+A4');
+    add(d(2), {
+      kind: 'write', paper: paperId(A), mods: ['W'],
+      title: '检验①：真题 ' + paperNo(A) + '・作文全篇（150 词，限时 30 分钟，只用这 4 段）',
+      min: 35, limit: 30, unit: { n: 150, u: '词' }
+    });
+
+    V(d(3), 39);
+    add(d(3), {
+      kind: 'listen', paper: paperId(A), mods: ['L'],
+      title: '真题 ' + paperNo(A) + '・听力 25 题（限时 30 分钟，错题回听 1 段）',
+      min: 50, limit: 30, unit: { n: 25, u: '题' }
+    });
+
+    V(d(4), 40);
+    CHUNK(d(4), 'T2');
+    add(d(4), {
+      kind: 'trans', paper: paperId(A), mods: ['T'],
+      title: '检验①：真题 ' + paperNo(A) + '・翻译全篇（180 字，限时 30 分钟）',
+      min: 35, limit: 30, unit: { n: 180, u: '字' }
+    });
+
+    V(d(5), 41);
+    add(d(5), {
+      kind: 'mock', paper: paperId(MK), mods: ['L', 'R', 'W', 'T'],
+      title: '全真模考：真题 ' + paperNo(MK) + '（限时 130 分钟，严格计时）',
+      min: 140, limit: 130, unit: { n: 1, u: '套' }
+    });
+
+    V(d(6), 42);
+    add(d(6), {
+      kind: 'mock', paper: paperId(B), mods: ['L', 'R'], half: true,
+      title: '半套限时：真题 ' + paperNo(B) + '（听力 30 分钟 + 阅读 40 分钟）',
+      min: 70, limit: 70, unit: { n: 1, u: '套' }
+    });
+    add(d(6), {
+      kind: 'vocab',
+      title: '本周单词周测（限时 20 分钟，只测不学）',
+      min: 20, limit: 20, unit: { n: per * 2, u: '个词' }
+    });
+  }
+
+  // ---------------- 第 6 周：四段合默 + 检验② ----------------
+  {
+    const w = 6;
+    const d = k => D(w, k);
+    const split = SPLIT_BY_WEEK[w];
+    const A = split[0], B = split[1], MK = MOCK_BY_WEEK[w];
+
+    V(d(0), 43);
+    DICT(d(0), 'A1+A2+A3+A4');
+    CHUNK(d(0), 'T3');
+    SENT(d(0), 3, 15);
+
+    V(d(1), 44);
+    add(d(1), {
+      kind: 'read', paper: paperId(A), mods: ['R'],
+      title: '真题 ' + paperNo(A) + '・仔细阅读 Passage 1–2（10 题，限时 16 分钟，做完标错因）',
+      min: 30, limit: 16, unit: { n: 10, u: '题' }
+    });
+    add(d(1), {
+      kind: 'read', paper: paperId(A), mods: [],
+      title: '真题 ' + paperNo(A) + '・选词填空（10 题，限时 8 分钟，先判词性）',
+      min: 20, limit: 8, unit: { n: 10, u: '题' }
+    });
+
+    V(d(2), 45);
+    SENT(d(2), 8, 40);
+
+    V(d(3), 46);
+    add(d(3), {
+      kind: 'listen', paper: paperId(A), mods: ['L'],
+      title: '真题 ' + paperNo(A) + '・听力 25 题（限时 30 分钟，错题回听 1 段）',
+      min: 50, limit: 30, unit: { n: 25, u: '题' }
+    });
+
+    V(d(4), 47);
+    CHUNK(d(4), 'T4');
+    add(d(4), {
+      kind: 'trans', paper: paperId(A), mods: ['T'],
+      title: '检验②：真题 ' + paperNo(A) + '・翻译全篇（180 字，限时 30 分钟）',
+      min: 35, limit: 30, unit: { n: 180, u: '字' }
+    });
+
+    V(d(5), 48);
+    add(d(5), {
+      kind: 'mock', paper: paperId(MK), mods: ['L', 'R', 'W', 'T'],
+      title: '全真模考：真题 ' + paperNo(MK) + '（限时 130 分钟，严格计时）',
+      min: 140, limit: 130, unit: { n: 1, u: '套' }
+    });
+
+    V(d(6), 49);
+    add(d(6), {
+      kind: 'mock', paper: paperId(B), mods: ['L', 'R'], half: true,
+      title: '半套限时：真题 ' + paperNo(B) + '（听力 30 分钟 + 阅读 40 分钟）',
+      min: 70, limit: 70, unit: { n: 1, u: '套' }
+    });
+    add(d(6), {
+      kind: 'vocab',
+      title: '本周单词周测（限时 20 分钟，只测不学）',
+      min: 20, limit: 20, unit: { n: per * 2, u: '个词' }
+    });
+  }
+
+  // ---------------- 第 7 周：收官 ----------------
+  {
+    const d = k => D(7, k);
+    V(d(0), 50);
+    DICT(d(0), 'A1+A2+A3+A4');
+    add(d(0), {
+      kind: 'trans',
+      title: '词块快过：四组各背 5 个（限时 15 分钟）',
+      min: 20, limit: 15, unit: { n: 20, u: '个词块' }
+    });
+
+    V(d(1), 51);
+    add(d(1), {
+      kind: 'read', paper: paperId(18), mods: [],
+      title: '真题 ' + paperNo(18) + '・仔细阅读 2 篇（10 题，限时 16 分钟）',
+      min: 30, limit: 16, unit: { n: 10, u: '题' }
+    });
+    SENT(d(1), 3, 15);
+
+    V(d(2), 52);
+    add(d(2), {
+      kind: 'write', paper: paperId(17), mods: ['W'],
+      title: '检验②：真题 ' + paperNo(17) + '・作文全篇（150 词，限时 30 分钟，只用这 4 段）',
+      min: 35, limit: 30, unit: { n: 150, u: '词' }
+    });
+
+    V(d(3), 53);
+    add(d(3), {
+      kind: 'listen', paper: paperId(15), mods: [],
+      title: '真题 ' + paperNo(15) + '・讲座 10 题（限时 12 分钟，错题回听）',
+      min: 25, limit: 12, unit: { n: 10, u: '题' }
+    });
+    SENT(d(3), 3, 15);
+
+    DICT(d(4), 'A1+A4');
+    add(d(4), {
+      kind: 'trans',
+      title: '词块快过：四组各背 5 个（限时 15 分钟）',
+      min: 20, limit: 15, unit: { n: 20, u: '个词块' }
+    });
+  }
+
+  // ---------------- 按目标分加料 ----------------
+  if (tier.sundayRecap) {
+    tasks.filter(t => t.kind === 'mock' && t.half).forEach(t => {
+      seq += 1;
+      tasks.push({
+        id: 't' + String(seq).padStart(3, '0'),
+        date: t.date, kind: 'write', paper: null, mods: [],
+        title: '模板合背：A1–A4 连背一遍（限时 15 分钟）',
+        min: 20, limit: 15, unit: { n: 10, u: '句' },
+        note: '', half: false, st: 'todo', actual: 0, doneAmount: 0, moves: 0, src: 'plan'
+      });
+    });
+  }
+  if (tier.extraBank) {
+    tasks.filter(t => t.kind === 'read' && (t.mods || []).indexOf('R') >= 0).forEach(t => {
+      if (tasks.some(x => x.date === t.date && x.title.indexOf('选词填空') >= 0)) return;
+      seq += 1;
+      tasks.push({
+        id: 't' + String(seq).padStart(3, '0'),
+        date: t.date, kind: 'read', paper: t.paper, mods: [],
+        title: (t.title.split('・')[0] || '真题') + '・选词填空（10 题，限时 8 分钟，先判词性）',
+        min: 10, limit: 8, unit: { n: 10, u: '题' },
+        note: '', half: false, st: 'todo', actual: 0, doneAmount: 0, moves: 0, src: 'plan'
+      });
+    });
+  }
+  tasks.sort((a, b) => a.date.localeCompare(b.date) || String(a.id).localeCompare(String(b.id)));
+
+  // ---------------- 预算收紧时按比例压缩 ----------------
+  const byDate = new Map();
+  tasks.forEach(t => {
+    if (!byDate.has(t.date)) byDate.set(t.date, []);
+    byDate.get(t.date).push(t);
+  });
+  byDate.forEach((list, date) => {
+    const budget = isWeekend(date) ? cfg.weekendMin : cfg.weekdayMin;
+    if (list.some(t => t.kind === 'mock' && !t.half)) return;
+    const total = sumBy(list, t => t.min);
+    if (total <= budget) return;
+    const scale = budget / total;
+    list.forEach(t => { t.min = Math.max(5, Math.round(t.min * scale)); });
+  });
+
+  // ---------------- 汇总 ----------------
+  const dates = rangeDays(cfg.startDate, lastStudy);
+  const days = dates.map(date => {
+    const w = Math.floor(diffDays(base, date) / 7);
+    const budget = isWeekend(date) ? cfg.weekendMin : cfg.weekdayMin;
+    const dayTasks = tasks.filter(t => t.date === date);
+    return {
+      date: date,
+      week: w,
+      budget: budget,
+      planned: sumBy(dayTasks, t => t.min),
+      count: dayTasks.length,
+      hasMock: dayTasks.some(t => t.kind === 'mock')
+    };
+  });
+
+  return {
+    cfg: cfg,
+    papers: makePapers(),
+    tasks: tasks,
+    days: days,
+    meta: {
+      totalMin: sumBy(tasks, t => t.min),
+      totalTasks: tasks.length,
+      capacityMin: sumBy(days, x => x.budget),
+      studyDays: days.length
+    }
+  };
+}
+
+function planToMarkdown(plan) {
+  const cfg = plan.cfg;
+  const L = [];
+  const push = s => L.push(s);
+  push('# 六级 55 天冲刺计划总表');
+  push('');
+  push('- 开始：' + cfg.startDate + '（周一）');
+  push('- 考试：' + cfg.examDate + '（周六）');
+  push('- 每日预算：工作日 ' + cfg.weekdayMin + ' 分钟 / 周末 ' + cfg.weekendMin + ' 分钟');
+  push('- 只做五件事：单词背诵 / 听力阅读真题演练 / 翻译 / 写作模板背诵 / 真题模考');
+  push('- 写作模板只有 4 段（A1 开头 / A2 主体 / A3 让步 / A4 结尾），每段：背一次 → 默写一次 → 仿写一段');
+  push('- 听力阅读：18 套真题（6 全真 + 6 半套 + 6 分项）；写译：4 段模板 + 4 组词块 + 各 2 次全篇检验');
+  push('- 主线时长：' + (plan.meta.totalMin / 60).toFixed(1) + ' 小时 / 可用 ' + (plan.meta.capacityMin / 60).toFixed(1) + ' 小时');
+  push('');
+  push('## 一、周节奏');
+  push('');
+  push('| 周 | 主题 | 真题消耗 | 安排要点 |');
+  push('| --- | --- | --- | --- |');
+  const weekRows = {};
+  plan.days.forEach(d => { weekRows[d.week] = { papers: new Set() }; });
+  plan.tasks.forEach(t => {
+    const d = plan.days.find(x => x.date === t.date);
+    if (!d || !t.paper) return;
+    const real = t.kind === 'mock' || (t.mods || []).length > 0;
+    if (real) weekRows[d.week].papers.add(t.paper);
+  });
+  Object.keys(weekRows).sort((a, b) => a - b).forEach(w => {
+    const meta = WEEK_META[w] || { title: '第 ' + w + ' 周', theme: '' };
+    const papers = Array.from(weekRows[w].papers).sort()
+      .map(p => '真题 ' + p.slice(1)).join('、');
+    push('| W' + (+w + 1) + ' | ' + meta.title + ' | ' + (papers || '—') + ' | ' + meta.theme + ' |');
+  });
+  push('');
+  push('## 二、逐日任务');
+  push('');
+  let curWeek = -1;
+  plan.days.forEach(day => {
+    if (day.week !== curWeek) {
+      curWeek = day.week;
+      const meta = WEEK_META[curWeek] || { title: '第 ' + (curWeek + 1) + ' 周', theme: '' };
+      push('');
+      push('### W' + (curWeek + 1) + '　' + meta.title + '（' + meta.theme + '）');
+      push('');
+      push('| 日期 | 星期 | 任务（含限时） | 分钟 |');
+      push('| --- | --- | --- | --- |');
+    }
+    const ts = plan.tasks.filter(t => t.date === day.date);
+    const dowCN = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][new Date(day.date + 'T00:00:00').getDay()];
+    const cell = ts.map(t => '· ' + t.title).join('<br>');
+    push('| ' + day.date.slice(5) + ' | ' + dowCN + ' | ' + (cell || '休息') + ' | ' + day.planned + ' |');
+  });
+  push('');
+  push('## 三、18 套真题去向');
+  push('');
+  push('| 套号 | 模考 | 听力 | 阅读 | 写作 | 翻译 |');
+  push('| --- | --- | --- | --- | --- | --- |');
+  const cells = {};
+  plan.tasks.forEach(t => {
+    if (!t.paper) return;
+    if (!cells[t.paper]) cells[t.paper] = {};
+    const c = cells[t.paper];
+    if (t.kind === 'mock') {
+      c.mock = t.half ? '半套 ' + t.date.slice(5) : t.date.slice(5);
+      return;
+    }
+    const m = t.mods || [];
+    if (m.includes('L')) c.L = t.date.slice(5);
+    if (m.includes('R')) c.R = t.date.slice(5);
+    if (m.includes('W')) c.W = t.date.slice(5);
+    if (m.includes('T')) c.T = t.date.slice(5);
+  });
+  plan.papers.forEach(p => {
+    const c = cells[p.id] || {};
+    push('| ' + p.label + ' | ' + (c.mock || '—') + ' | ' + (c.L || '—') + ' | ' +
+      (c.R || '—') + ' | ' + (c.W || '—') + ' | ' + (c.T || '—') + ' |');
+  });
+  push('');
+  return L.join('\n');
+}
+
+// ---- src/engine/state.js ----
+// 状态层：创建、迁移、备份码
+
+const STATE_KEY = 'cet6.state.v1';
+const STATE_VERSION = 1;
+const BACKUP_PREFIX = 'CET6v1:';
+
+function createState(cfgIn) {
+  const cfg = Object.assign(defaultConfig(), cfgIn || {});
+  const plan = buildPlan(cfg);
+  return {
+    v: STATE_VERSION,
+    settings: Object.assign({}, plan.cfg, {
+      target: cfg.target || 425,
+      degrade: 0,
+      theme: 'auto',
+      reviewCap: 60
+    }),
+    papers: plan.papers,
+    tasks: plan.tasks,
+    days: plan.days,
+    words: {},
+    log: [],
+    flags: { vocabDebt: 0, lastSettle: null, lastBackup: null },
+    onboarded: false,
+    createdAt: todayStr()
+  };
+}
+
+function addLog(state, text, type) {
+  state.log.unshift({ ts: new Date().toISOString(), type: type || 'info', text: text });
+  if (state.log.length > 200) state.log.length = 200;
+}
+
+// 兼容旧备份：补齐字段
+function normalizeState(raw) {
+  const cfg = Object.assign(defaultConfig(), (raw && raw.settings) || {});
+  const s = Object.assign(createState(cfg), raw || {});
+  s.settings = Object.assign({ target: 425, degrade: 0, theme: 'auto', reviewCap: 60 }, cfg, s.settings || {});
+  s.words = s.words || {};
+  s.log = s.log || [];
+  s.flags = Object.assign({ vocabDebt: 0, lastSettle: null, lastBackup: null }, s.flags || {});
+  s.papers = s.papers && s.papers.length === 18 ? s.papers : makePapers();
+  s.papers.forEach(p => {
+    if (!p.role) p.role = ['p13', 'p14', 'p15', 'p16', 'p17', 'p18'].indexOf(p.id) >= 0 ? 'mock' : 'practice';
+    if (!p.mode) p.mode = 'none';
+  });
+  s.tasks = Array.isArray(s.tasks) ? s.tasks : [];
+  if (!Array.isArray(s.days) || !s.days.length) s.days = buildPlan(s.settings).days;
+  s.tasks.forEach(t => {
+    t.st = t.st || 'todo';
+    t.mods = t.mods || [];
+    t.moves = t.moves || 0;
+    t.actual = t.actual || 0;
+    t.limit = t.limit || t.min || 0;
+    t.unit = t.unit || null;
+    t.doneAmount = t.doneAmount || 0;
+  });
+  s.v = STATE_VERSION;
+  return s;
+}
+
+// 设置变更后：重建「今天及以后」尚未开始的任务，保留已完成/归档/历史
+function rebuildFuture(state, today) {
+  const plan = buildPlan(state.settings);
+  const keep = [];
+  state.tasks.forEach(t => {
+    if (t.st === 'todo' && t.date >= today) return; // 丢弃未来待办
+    keep.push(t);
+  });
+  const keptKeys = new Set(keep.map(t => t.id));
+  let n = 0;
+  const added = plan.tasks
+    .filter(t => t.date >= today)
+    .map(t => {
+      n += 1;
+      return Object.assign({}, t, { id: 'n' + String(n).padStart(3, '0') + '-' + t.id.slice(1) });
+    })
+    .filter(t => !keptKeys.has(t.id));
+  state.tasks = keep.concat(added).sort((a, b) =>
+    a.date.localeCompare(b.date) || String(a.id).localeCompare(String(b.id)));
+  state.papers = mergePapers(state.papers, plan.papers);
+  state.days = plan.days;
+  return state;
+}
+
+function mergePapers(oldList, newList) {
+  const map = {};
+  (oldList || []).forEach(p => { map[p.id] = p; });
+  return newList.map(p => {
+    const old = map[p.id];
+    if (!old) return p;
+    return {
+      id: p.id,
+      n: p.n,
+      label: old.label || p.label,
+      role: old.role || p.role,
+      mode: old.mode || 'none',
+      date: old.date || null,
+      mods: {
+        L: Object.assign({}, p.mods.L, old.mods && old.mods.L),
+        R: Object.assign({}, p.mods.R, old.mods && old.mods.R),
+        W: Object.assign({}, p.mods.W, old.mods && old.mods.W),
+        T: Object.assign({}, p.mods.T, old.mods && old.mods.T)
+      }
+    };
+  });
+}
+
+// ---------- 备份码 ----------
+function b64encode(str) {
+  const bytes = new TextEncoder().encode(str);
+  let bin = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) {
+    bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  }
+  return btoa(bin);
+}
+
+function b64decode(b64) {
+  const bin = atob(b64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+
+function encodeBackup(state) {
+  const slim = {
+    v: state.v,
+    settings: state.settings,
+    papers: state.papers,
+    tasks: state.tasks,
+    words: state.words,
+    flags: state.flags,
+    onboarded: state.onboarded,
+    createdAt: state.createdAt,
+    log: (state.log || []).slice(0, 30)
+  };
+  return BACKUP_PREFIX + b64encode(JSON.stringify(slim));
+}
+
+function decodeBackup(text) {
+  const raw = String(text || '').replace(/\s+/g, '');
+  const body = raw.startsWith(BACKUP_PREFIX) ? raw.slice(BACKUP_PREFIX.length) : raw;
+  if (!body) throw new Error('备份码是空的');
+  let json;
+  try {
+    json = b64decode(body);
+  } catch (e) {
+    throw new Error('备份码格式不对，请重新复制完整一段');
+  }
+  let obj;
+  try {
+    obj = JSON.parse(json);
+  } catch (e) {
+    throw new Error('备份码内容损坏，无法解析');
+  }
+  if (!obj || !obj.tasks) throw new Error('这段文本不是本应用的备份码');
+  return normalizeState(obj);
+}
+
+// ---------- 本地存储 ----------
+function saveState(state) {
+  try {
+    localStorage.setItem(STATE_KEY, JSON.stringify(state));
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STATE_KEY);
+    if (!raw) return null;
+    return normalizeState(JSON.parse(raw));
+  } catch (e) {
+    return null;
+  }
+}
+
+function clearState() {
+  try { localStorage.removeItem(STATE_KEY); } catch (e) { /* ignore */ }
+}
+
+// ---- src/engine/scheduler.js ----
+// 重排引擎
+// 核心约定：
+//   · t.next === true 表示「今天就做了一部分，剩下的必须补进之后的任务」——这类任务不允许被归档
+//   · 普通漏做（整天没碰）才允许在排不下时归档
+
+const PRIORITY = {
+  mock: 100,
+  listen: 80,
+  read: 80,
+  sprint: 70,
+  review: 60,
+  write: 50,
+  trans: 50,
+  method: 30,
+  ops: 25,
+  vocab: 10
+};
+
+const DEGRADE_LABEL = ['标准', '精简', '保底'];
+
+function futureDays(today, last) {
+  const out = [];
+  for (let d = today; d <= last; d = addDays(d, 1)) out.push(d);
+  return out;
+}
+
+const isOpen = t => t.st === 'todo' || t.st === 'part';
+
+function backlogTasks(state, today) {
+  return state.tasks.filter(t =>
+    t.st === 'archived' || (!t.next && t.date < today && isOpen(t)));
+}
+
+function replan(state, today) {
+  const s = JSON.parse(JSON.stringify(state));
+  const changes = [];
+  const exam = s.settings.examDate;
+  const last = addDays(exam, -1);
+  if (today > last) return { state: s, changes: changes };
+
+  // 待处理 = 今天以前没做的 + 标记了「必须补」的剩余部分
+  const pending = s.tasks.filter(t => isOpen(t) && (t.date < today || t.next));
+  if (!pending.length) {
+    s.flags.lastSettle = today;
+    return { state: s, changes: changes };
+  }
+
+  const future = futureDays(today, last);
+  const used = new Map();
+  const kindOn = new Map();
+  const mockDays = new Set();
+  future.forEach(d => used.set(d, 0));
+
+  s.tasks.forEach(t => {
+    if (t.next) return;                 // 待补任务还没占日子
+    if (t.date < today || !isOpen(t)) return;
+    used.set(t.date, (used.get(t.date) || 0) + t.min);
+    const k = t.date + '|' + t.kind;
+    kindOn.set(k, (kindOn.get(k) || 0) + 1);
+    if (t.kind === 'mock') mockDays.add(t.date);
+  });
+
+  const budgetOf = d => (isWeekend(d) ? s.settings.weekendMin : s.settings.weekdayMin);
+
+  const commit = (t, d, mins, reason, from) => {
+    t.date = d;
+    t.min = mins;
+    t.limit = Math.max(5, Math.min(t.limit || mins, mins));
+    t.st = 'todo';
+    t.next = false;
+    t.moves = (t.moves || 0) + 1;
+    t.originDate = t.originDate || from;
+    used.set(d, (used.get(d) || 0) + mins);
+    const k = d + '|' + t.kind;
+    kindOn.set(k, (kindOn.get(k) || 0) + 1);
+    changes.push({ id: t.id, title: t.title, from: t.originDate, to: d, reason: reason });
+  };
+
+  pending.sort((a, b) =>
+    ((PRIORITY[b.kind] || 0) - (PRIORITY[a.kind] || 0)) ||
+    String(a.date).localeCompare(String(b.date)));
+
+  pending.forEach(t => {
+    const from = t.date;
+    const mustPlace = !!t.next;   // 做了一部分 → 剩下的保证补进去
+    const need = t.st === 'part' ? Math.max(15, Math.round(t.min * 0.5)) : t.min;
+
+    // 词汇整天没背：不补课，折成复习量
+    if (t.kind === 'vocab' && !mustPlace) {
+      t.st = 'archived';
+      t.note = (t.note ? t.note + '；' : '') + '词汇不补新词，已折成复习量';
+      s.flags.vocabDebt = (s.flags.vocabDebt || 0) + 1;
+      changes.push({ id: t.id, title: t.title, from: from, to: null, reason: '词汇欠账转为复习' });
+      return;
+    }
+
+    const canUse = d => {
+      if (mockDays.has(d)) return false;
+      if (t.next && d === today) return false;      // 剩下的最早排到明天
+      if (d === last && need > 60) return false;    // 考前一天只放轻量
+      return true;
+    };
+
+    const findSlot = mins => {
+      for (const d of future) {
+        if (!canUse(d)) continue;
+        if ((used.get(d) || 0) + mins > budgetOf(d)) continue;
+        const k = d + '|' + t.kind;
+        if ((kindOn.get(k) || 0) >= 2) continue;
+        return d;
+      }
+      return null;
+    };
+
+    let d = findSlot(need);
+    let placedMin = need;
+    if (!d && t.kind !== 'mock') {
+      const shortMin = Math.max(10, Math.round(need * 0.6));
+      d = findSlot(shortMin);
+      if (d) { placedMin = shortMin; }
+    }
+
+    if (d) {
+      commit(t, d, placedMin, placedMin < need ? '空档不够，压缩后补做' : '已排进最近空档', from);
+      return;
+    }
+
+    if (mustPlace) {
+      // 保证补进去：挑最早一个非模考日，能塞多少塞多少，实在没空就小幅超时
+      for (const f of future) {
+        if (!canUse(f)) continue;
+        const free = budgetOf(f) - (used.get(f) || 0);
+        const take = free >= 5 ? Math.min(need, free) : need;
+        commit(t, f, Math.max(5, take), free >= need ? '已排进空档' : '当天较满，剩余部分优先补做', from);
+        return;
+      }
+      // 连未来都没有（比如已经过了最后一天）：放到考前那天，仍不归档
+      commit(t, last, Math.min(need, 60), '临近考试，剩余部分压在考前', from);
+      return;
+    }
+
+    t.st = 'archived';
+    t.note = (t.note ? t.note + '；' : '') + '排不进考前，已归档';
+    changes.push({ id: t.id, title: t.title, from: from, to: null, reason: '没有空档，先归档' });
+  });
+
+  s.flags.lastSettle = today;
+  return { state: s, changes: changes };
+}
+
+function degrade(state, level, today) {
+  const s = JSON.parse(JSON.stringify(state));
+  const lv = Math.max(0, Math.min(2, level));
+  s.settings.degrade = lv;
+  if (lv === 0) return s;
+  const tag = lv === 1 ? '精简' : '保底';
+  s.tasks.forEach(t => {
+    if (t.date < today) return;
+    if (t.st !== 'todo') return;
+    if (t.kind !== 'write' && t.kind !== 'trans') return;
+    t.min = lv === 1 ? 22 : 15;
+    if (t.title.indexOf('【' + tag + '】') !== 0) t.title = '【' + tag + '】' + t.title;
+  });
+  return s;
+}
+
+function suggestDegrade(rate) {
+  if (rate < 0.6) return 2;
+  if (rate < 0.7) return 1;
+  return 0;
+}
+
+// ---- src/engine/stats.js ----
+// 统计：完成率、连续打卡、正确率、估分
+
+const LISTEN_FULL = 248.5;
+const READ_FULL = 248.5;
+const WTRANS_FULL = 106.5;
+
+function dayProgress(state, date) {
+  const ts = state.tasks.filter(t => t.date === date && t.st !== 'archived');
+  const done = ts.filter(t => t.st === 'done' || t.st === 'part');
+  return {
+    total: ts.length,
+    done: done.length,
+    min: sumBy(ts, t => t.min),
+    doneMin: sumBy(done, t => t.min)
+  };
+}
+
+function rangeTasks(state, from, to) {
+  return state.tasks.filter(t => t.date >= from && t.date <= to && t.st !== 'archived');
+}
+
+function rangeRate(state, from, to) {
+  const ts = rangeTasks(state, from, to);
+  const done = ts.filter(t => t.st === 'done' || t.st === 'part');
+  return {
+    total: ts.length,
+    done: done.length,
+    rate: ts.length ? done.length / ts.length : 0,
+    min: sumBy(ts, t => t.min),
+    doneMin: sumBy(done, t => t.min)
+  };
+}
+
+function streak(state, today) {
+  let n = 0;
+  let d = today;
+  for (let i = 0; i < 90; i++) {
+    const p = dayProgress(state, d);
+    if (p.total === 0) break;
+    if (p.done === 0) break;
+    n += 1;
+    d = addDays(d, -1);
+  }
+  return n;
+}
+
+// 模考卷：只有这两类成绩才进「估分」
+function mockPapers(state) {
+  return state.papers
+    .filter(p => p.mode === 'mock')
+    .sort((a, b) => a.n - b.n);
+}
+
+// 平日练习卷（含半套）：只用于看分项趋势，不进估分
+function practicePapers(state) {
+  return state.papers
+    .filter(p => p.mode === 'practice')
+    .sort((a, b) => a.n - b.n);
+}
+
+// 模考正确率序列（只含模考点）
+function mockSeries(state) {
+  return mockPapers(state)
+    .filter(p => p.mods.L.right != null || p.mods.R.right != null)
+    .map(p => ({
+      n: p.n,
+      label: p.label,
+      L: p.mods.L.right == null ? null : p.mods.L.right / 25,
+      R: p.mods.R.right == null ? null : p.mods.R.right / 30
+    }));
+}
+
+// 平日练习平均正确率
+function practiceStats(state) {
+  const list = practicePapers(state);
+  const ls = list.filter(p => p.mods.L.right != null).map(p => p.mods.L.right);
+  const rs = list.filter(p => p.mods.R.right != null).map(p => p.mods.R.right);
+  const avg = arr => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null);
+  return {
+    count: list.length,
+    listenAvg: avg(ls),
+    readAvg: avg(rs),
+    listenCount: ls.length,
+    readCount: rs.length
+  };
+}
+
+// 兼容旧调用
+function accuracySeries(state) {
+  return mockSeries(state);
+}
+
+function lastFullMock(state) {
+  const mocks = mockPapers(state).filter(p => p.mods.L.right != null && p.mods.R.right != null);
+  if (!mocks.length) return null;
+  return mocks[mocks.length - 1];
+}
+
+// 估分只用全真模考；没有模考就不给估分，避免练习分数掺进来
+function estimateScore(state) {
+  const p = lastFullMock(state);
+  if (!p) {
+    const practice = practiceStats(state);
+    return {
+      listen: 0, read: 0, write: 0, trans: 0, total: 0,
+      hasData: false,
+      needMock: true,
+      practice: practice
+    };
+  }
+
+  const listen = (p.mods.L.right / 25) * LISTEN_FULL;
+  const read = (p.mods.R.right / 30) * READ_FULL;
+
+  // 写作翻译优先用这次模考的自评分；没填就用历次平均
+  let write = null;
+  let trans = null;
+  if (p.mods.W.score != null) write = (p.mods.W.score / 15) * WTRANS_FULL;
+  if (p.mods.T.score != null) trans = (p.mods.T.score / 15) * WTRANS_FULL;
+
+  if (write == null || trans == null) {
+    const ws = state.papers.filter(x => x.mods.W.score != null).map(x => x.mods.W.score);
+    const ts = state.papers.filter(x => x.mods.T.score != null).map(x => x.mods.T.score);
+    const avg = arr => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0);
+    if (write == null) write = (avg(ws) / 15) * WTRANS_FULL;
+    if (trans == null) trans = (avg(ts) / 15) * WTRANS_FULL;
+  }
+
+  const total = listen + read + write + trans;
+  return {
+    listen: Math.round(listen),
+    read: Math.round(read),
+    write: Math.round(write),
+    trans: Math.round(trans),
+    total: Math.round(total),
+    hasData: true,
+    needMock: false,
+    paper: p.label,
+    date: p.date || null,
+    mockCount: mockPapers(state).filter(x => x.mods.L.right != null || x.mods.R.right != null).length
+  };
+}
+
+// 限时达标率：只统计「填了实际用时 + 有明确限时」的已完成任务
+function onTimeRate(state, from, to) {
+  const ts = state.tasks.filter(t =>
+    t.st === 'done' && t.actual > 0 && t.limit > 0 &&
+    t.date >= from && t.date <= to);
+  const onTime = ts.filter(t => t.actual <= t.limit);
+  return {
+    total: ts.length,
+    onTime: onTime.length,
+    over: ts.length - onTime.length,
+    rate: ts.length ? onTime.length / ts.length : 0
+  };
+}
+
+// 距离目标还差多少：换算成「还要多对几道仔细阅读」
+function gapInfo(state, target) {
+  const est = estimateScore(state);
+  const gap = Math.max(0, (target || 425) - est.total);
+  return {
+    est: est,
+    gap: Math.round(gap),
+    readItems: Math.ceil(gap / (LISTEN_FULL / 30) * 1),
+    listenItems: Math.ceil(gap / (LISTEN_FULL / 25))
+  };
+}
+
+function weakPoint(state) {
+  const est = estimateScore(state);
+  if (!est.hasData) return null;
+  const parts = [
+    { key: 'listen', name: '听力', v: est.listen, full: LISTEN_FULL },
+    { key: 'read', name: '阅读', v: est.read, full: READ_FULL },
+    { key: 'write', name: '写作', v: est.write, full: WTRANS_FULL },
+    { key: 'trans', name: '翻译', v: est.trans, full: WTRANS_FULL }
+  ];
+  parts.sort((a, b) => (a.v / a.full) - (b.v / b.full));
+  return parts[0];
+}
+
+// ---- src/ui/parts.js ----
+// 小型 UI 工具（原生 JS，无依赖）
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function fmtMin(m) {
+  if (!m) return '0 分钟';
+  if (m < 60) return m + ' 分钟';
+  const h = Math.floor(m / 60);
+  const r = m % 60;
+  return r ? h + ' 小时 ' + r + ' 分' : h + ' 小时';
+}
+
+function ring(done, total, size) {
+  const s = size || 56;
+  const r = (s - 8) / 2;
+  const c = 2 * Math.PI * r;
+  const p = total > 0 ? Math.min(1, done / total) : 0;
+  return '<svg width="' + s + '" height="' + s + '" viewBox="0 0 ' + s + ' ' + s + '">' +
+    '<circle cx="' + s / 2 + '" cy="' + s / 2 + '" r="' + r + '" fill="none" stroke="var(--line)" stroke-width="5"/>' +
+    '<circle cx="' + s / 2 + '" cy="' + s / 2 + '" r="' + r + '" fill="none" stroke="var(--acc)" stroke-width="5" ' +
+    'stroke-linecap="round" stroke-dasharray="' + c + '" stroke-dashoffset="' + (c * (1 - p)) + '" ' +
+    'transform="rotate(-90 ' + s / 2 + ' ' + s / 2 + ')"/>' +
+    '<text x="50%" y="50%" dy=".35em" text-anchor="middle" font-size="' + Math.round(s / 4) +
+    '" font-weight="650" fill="var(--ink)">' + Math.round(p * 100) + '%</text></svg>';
+}
+
+// 两条折线：听力 / 阅读正确率
+function spark(series) {
+  const W = 300;
+  const H = 96;
+  const pad = 6;
+  if (!series.length) return '<div class="empty">还没有录入正确率</div>';
+  const x = i => series.length === 1 ? W / 2 : pad + (i * (W - pad * 2)) / (series.length - 1);
+  const y = v => H - pad - (v * (H - pad * 2));
+  const line = key => {
+    const pts = [];
+    series.forEach((s, i) => { if (s[key] != null) pts.push(x(i) + ',' + y(s[key]).toFixed(1)); });
+    return pts.length ? '<polyline fill="none" stroke="' + (key === 'L' ? 'var(--acc)' : 'var(--ok)') +
+      '" stroke-width="2" stroke-linejoin="round" points="' + pts.join(' ') + '"/>' : '';
+  };
+  const dots = key => series.map((s, i) => s[key] == null ? '' :
+    '<circle cx="' + x(i) + '" cy="' + y(s[key]) + '" r="2.4" fill="' + (key === 'L' ? 'var(--acc)' : 'var(--ok)') + '"/>').join('');
+  return '<svg class="spark" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none">' +
+    '<line x1="0" y1="' + y(0.6) + '" x2="' + W + '" y2="' + y(0.6) + '" stroke="var(--line)" stroke-dasharray="3 3"/>' +
+    line('L') + line('R') + dots('L') + dots('R') + '</svg>';
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.add('on');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('on'), 1800);
+}
+
+function openSheet(html) {
+  const mask = document.createElement('div');
+  mask.className = 'sheet-mask';
+  mask.innerHTML = '<div class="sheet">' + html + '</div>';
+  mask.addEventListener('click', e => { if (e.target === mask) mask.remove(); });
+  document.body.appendChild(mask);
+  return mask;
+}
+
+function closeSheet() {
+  const m = document.querySelector('.sheet-mask');
+  if (m) m.remove();
+}
+
+const ICON = {
+  today: '◎', plan: '▤', papers: '✎', more: '⋯',
+  check: '✓', part: '–', skip: '×'
+};
+
+function statusClass(st) {
+  return st === 'done' ? 'done' : st === 'part' ? 'part' : st === 'skip' ? 'skip' : '';
+}
+
+// ---- src/ui/views-a.js ----
+// 视图：今日 / 计划
+
+function paperName(S, id) {
+  const p = S.papers.find(x => x.id === id);
+  return p ? p.label : '';
+}
+
+function taskRow(S, t) {
+  const cls = statusClass(t.st);
+  const mark = t.st === 'done' ? '✓' : t.st === 'part' ? '–' : t.st === 'skip' ? '×' : '';
+  const paper = t.paper ? '<span class="pill">' + esc(paperName(S, t.paper)) + '</span>' : '';
+  const limit = t.limit || t.min;
+  const time = (t.title.indexOf('限时') >= 0)
+    ? ''
+    : (limit < t.min
+      ? '<span>限时 ' + limit + '′ / 共 ' + t.min + '′</span>'
+      : '<span>限时 ' + limit + '′</span>');
+  const donePill = (t.doneAmount > 0 && t.unit)
+    ? '<span class="pill ok">已 ' + t.doneAmount + '/' + t.unit.n + ' ' + t.unit.u + '</span>'
+    : '';
+  const moved = t.moves > 0 ? '<span class="pill warn">顺延 ' + t.moves + ' 次</span>' : '';
+  const spare = t.src === 'split' ? '<span class="pill warn">补做</span>' : '';
+  return '<li class="task ' + cls + '" data-act="task" data-id="' + t.id + '">' +
+    '<span class="box">' + mark + '</span>' +
+    '<div class="t-body"><div class="t-title">' + esc(t.title) + '</div>' +
+    '<div class="t-meta"><span class="pill acc">' + (KIND_LABEL[t.kind] || t.kind) + '</span>' +
+    time + paper + donePill + spare + moved + '</div></div>' +
+    '</li>';
+}
+
+function viewToday(ctx) {
+  const S = ctx.S;
+  const today = ctx.activeDate;
+  const exam = S.settings.examDate;
+  const left = diffDays(today, exam);
+  const dp = dayProgress(S, today);
+  const tasks = S.tasks.filter(t => t.date === today && t.st !== 'archived');
+  const bl = backlogTasks(S, ctx.today);
+  const est = estimateScore(S);
+  const st = streak(S, ctx.today);
+
+  let html = '';
+
+  if (ctx.today === exam) {
+    return '<div class="card"><h2>今天就是考试日</h2>' +
+      '<p>14:40 进场，15:00 开始写作。别再看新题，把背过的 4 段模板过一遍就好。</p>' +
+      '<p class="hint">考完记得回来点「更多 → 复制备份码」，把这段时间的记录留个底。</p>' +
+      '</div>';
+  }
+  if (ctx.today > exam) {
+    const r = rangeRate(S, S.settings.startDate, S.settings.examDate);
+    return '<div class="card"><h2>考试已经结束</h2>' +
+      '<p>这段时间你完成了 ' + r.done + ' / ' + r.total + ' 项任务，完成率 ' + Math.round(r.rate * 100) + '%。</p>' +
+      '<p class="hint">数据都还在，可以在「更多 → 复制备份码」里导出留档。</p></div>';
+  }
+
+  if (ctx.today < S.settings.startDate) {
+    const first = S.tasks.filter(t => t.date === S.settings.startDate);
+    html += '<div class="card"><h2>明天开始</h2>' +
+      '<p>计划从 ' + mmdd(S.settings.startDate) + '（' + dowCN(S.settings.startDate) + '）正式启动。今晚只做一件事：' +
+      '把 18 套真题按学期排好，最新的 6 套留作模考，放在最上面。</p></div>' +
+      '<div class="card"><h2>第一天的安排</h2><ul class="tasks">' +
+      first.map(t => taskRow(S, t)).join('') + '</ul></div>';
+    return html;
+  }
+
+  html += '<div class="card"><div class="hero">' +
+    '<div><div class="dnum">D-' + left + '</div><div class="dsub">距 ' + mmdd(exam) + ' 六级</div></div>' +
+    '<div class="mid"><div class="t">' + mmdd(today) + ' ' + dowCN(today) + '</div>' +
+    '<div class="b">今日 ' + dp.done + '/' + dp.total + ' 项 · 计划 ' + fmtMin(dp.min) + '</div>' +
+    '<div class="t" style="margin-top:6px">连续打卡 ' + st + ' 天</div></div>' +
+    '<div>' + ring(dp.done, dp.total, 62) + '</div></div></div>';
+
+  if (est.hasData) {
+    const over = est.total >= S.settings.target;
+    const gap = gapInfo(S, S.settings.target);
+    html += '<div class="card"><h2>估分（最近一次全真模考：' + esc(est.paper || '') + '）</h2>' +
+      '<div class="hero" style="gap:8px">' +
+      '<div><div class="dnum" style="font-size:28px;color:' + (over ? 'var(--ok)' : 'var(--bad)') + '">' + est.total + '</div>' +
+      '<div class="dsub">目标 ' + S.settings.target + '</div></div>' +
+      '<div class="mid"><div class="t">' + (over ? '已过线，继续稳听力阅读' : '还差 ' + gap.gap + ' 分 ≈ 再对 ' + gap.readItems + ' 道仔细阅读') + '</div>' +
+      '<div class="b" style="color:var(--ink3);font-size:12px">听力 ' + est.listen + ' · 阅读 ' + est.read + ' · 写译 ' + (est.write + est.trans) + '</div></div></div></div>';
+  } else {
+    html += '<div class="card"><h2>估分</h2>' +
+      '<div class="hint">第一次全真模考做完后，这里显示估分。' +
+      '平日练习的正确率不会算进来（在「更多」里单独看）。</div></div>';
+  }
+
+  if (ctx.changes && ctx.changes.length) {
+    const delay = ctx.changes.filter(c => c.to).length;
+    const arch = ctx.changes.filter(c => !c.to).length;
+    html += '<div class="notice" data-act="changes">⚠️ 今天为你调整了 ' + ctx.changes.length + ' 项' +
+      (delay ? '：' + delay + ' 项顺延' : '') + (arch ? '，' + arch + ' 项归档' : '') +
+      '<span class="x">看详情 →</span></div>';
+  }
+
+  html += '<div class="card"><h2>今天的任务</h2>';
+  if (!tasks.length) {
+    html += '<div class="empty">今天没有安排，休息也是一种计划。</div>';
+  } else {
+    html += '<ul class="tasks">' + tasks.map(t => taskRow(S, t)).join('') + '</ul>';
+  }
+  html += '</div>';
+
+  if (bl.length) {
+    html += '<div class="notice warn" data-act="backlog">📌 有 ' + bl.length + ' 项没做完（含已归档），点这里决定「补」还是「弃」<span class="x">→</span></div>';
+  }
+
+  html += '<div class="row" style="margin-bottom:14px">' +
+    '<button class="ghost" data-act="replan">重新排期</button>' +
+    '<button class="ghost" data-act="jump-today">回到今天</button></div>';
+
+  return html;
+}
+
+function viewPlan(ctx) {
+  const S = ctx.S;
+  const byDate = {};
+  S.tasks.forEach(t => {
+    if (t.st === 'archived') return;
+    (byDate[t.date] = byDate[t.date] || []).push(t);
+  });
+
+  const weeks = {};
+  S.days.forEach(d => {
+    weeks[d.week] = weeks[d.week] || [];
+    weeks[d.week].push(d);
+  });
+
+  let html = '<div class="card tight"><div class="hint">点任意一周或某一天展开任务；展开时页面不会跳回顶部。</div></div>';
+
+  Object.keys(weeks).sort((a, b) => a - b).forEach(w => {
+    const meta = WEEK_META[w] || { title: '第 ' + (+w + 1) + ' 周', theme: '' };
+    const dlist = weeks[w];
+    const all = dlist.reduce((s, d) => s + (byDate[d.date] || []).filter(t => t.st !== 'archived').length, 0);
+    const done = dlist.reduce((s, d) => s + (byDate[d.date] || []).filter(t => t.st === 'done' || t.st === 'part').length, 0);
+    const first = dlist[0].date;
+    const last = dlist[dlist.length - 1].date;
+
+    html += '<div class="week"><div class="week-head" data-act="week" data-w="' + w + '">' +
+      '<span class="wt">W' + (+w + 1) + '</span>' +
+      '<span class="ws">' + esc(meta.title) + ' · ' + mmdd(first) + '–' + mmdd(last) + '</span>' +
+      '<span class="prog">' + done + '/' + all + '</span></div>';
+
+    if (ctx.openWeeks && ctx.openWeeks.has(+w)) {
+      html += '<div class="week-body">';
+      dlist.forEach(d => {
+        const ts = (byDate[d.date] || []).filter(t => t.st !== 'archived');
+        const dn = ts.filter(t => t.st === 'done' || t.st === 'part').length;
+        const dot = ts.length === 0 ? '' : (dn === ts.length ? 'full' : dn > 0 ? 'some' : '');
+        const isToday = d.date === ctx.activeDate;
+        html += '<div class="day' + (isToday ? ' today' : '') + '" data-act="day" data-date="' + d.date + '">' +
+          '<span class="dt">' + mmdd(d.date) + ' ' + dowCN(d.date) + '</span>' +
+          '<span class="dot ' + dot + '"></span>' +
+          '<span class="dm">' + ts.length + ' 项 · ' + fmtMin(d.planned) + '</span></div>';
+        if (ctx.openDays && ctx.openDays.has(d.date)) {
+          html += '<ul class="tasks day-tasks">' + ts.map(t => taskRow(S, t)).join('') + '</ul>';
+        }
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+  });
+
+  return html;
+}
+
+// ---- src/ui/views-b.js ----
+// 视图：真题（模考 / 练习分开）/ 更多（统计 · 设置 · 备份）
+
+function viewPapers(ctx) {
+  const S = ctx.S;
+  const est = estimateScore(S);
+  const mockList = S.papers.filter(p => p.role === 'mock');
+  const pracList = S.papers.filter(p => p.role === 'practice');
+  const mockDone = mockList.filter(p => p.mode === 'mock').length;
+  const pracDone = pracList.filter(p => p.mode === 'practice').length;
+
+  const cells = p => ['L', 'R', 'W', 'T'].map(k => {
+    const m = p.mods[k];
+    const cls = m.st === 'mock' ? 'mock' : m.st === 'done' ? 'done' : m.st === 'brief' ? 'brief' : m.st === 'skip' ? 'skip' : '';
+    let val = '';
+    if ((k === 'L' || k === 'R') && m.right != null) val = ' ' + m.right;
+    if ((k === 'W' || k === 'T') && m.score != null) val = ' ' + m.score;
+    return '<span class="cell ' + cls + '">' + k + val + '</span>';
+  }).join('');
+
+  const row = p => '<div class="paper" data-act="paper" data-id="' + p.id + '">' +
+    '<span class="pn">' + esc(p.label) + '</span>' +
+    '<span class="cells">' + cells(p) + '</span></div>';
+
+  let html = '<div class="card"><h2>真题总览</h2>' +
+    '<div class="kpis" style="margin-top:0">' +
+    '<div class="kpi"><div class="k">全真模考</div><div class="v">' + mockDone + '/6</div></div>' +
+    '<div class="kpi"><div class="k">平日练习</div><div class="v">' + pracDone + '/12</div></div>' +
+    '<div class="kpi"><div class="k">估分</div><div class="v">' + (est.hasData ? est.total : '—') + '</div></div></div>' +
+    '<div class="hint" style="margin-top:10px">估分只用「全真模考」那 6 套；平日练习的正确率单独统计，不会掺进估分。</div></div>';
+
+  html += '<div class="card"><h2>全真模考（最新两期：2025.12 / 2026.06）</h2>' +
+    (mockList.length ? mockList.map(row).join('') : '<div class="empty">没有模考卷</div>') +
+    '<div class="hint" style="margin-top:8px">限时 130 分钟一次做完；这 6 套的成绩用来估算总分。</div></div>';
+
+  html += '<div class="card"><h2>平日练习（2023.12 – 2025.06，含半套）</h2>' +
+    (pracList.length ? pracList.map(row).join('') : '<div class="empty">没有练习卷</div>') +
+    '<div class="hint" style="margin-top:8px">只用于看分项趋势：听力 /25、阅读 /30。</div></div>';
+
+  html += '<div class="card tight"><div class="hint">格子里：灰 = 未做；蓝 = 模考中完成；绿 = 单独完成；黄 = 只看了题目；红 = 跳过。</div></div>';
+
+  if (est.hasData) {
+    html += '<div class="card"><h2>这次估分怎么来的</h2>' +
+      '<div class="hint">' + esc(est.paper || '') + '（最近一次全真模考）<br>' +
+      '听力 ' + est.listen + ' / 248.5　阅读 ' + est.read + ' / 248.5<br>' +
+      '写作 ' + est.write + ' / 106.5　翻译 ' + est.trans + ' / 106.5<br>' +
+      '合计 ' + est.total + '，目标 ' + S.settings.target + '</div></div>';
+  }
+
+  return html;
+}
+
+function viewMore(ctx) {
+  const S = ctx.S;
+  const past = rangeRate(S, S.settings.startDate, ctx.today);
+  const mocks = mockSeries(S);
+  const prac = practiceStats(S);
+  const ot = onTimeRate(S, S.settings.startDate, ctx.today);
+
+  let html = '';
+
+  html += '<div class="card"><h2>学习统计</h2>' +
+    '<div class="kpis" style="margin-top:0">' +
+    '<div class="kpi"><div class="k">完成率</div><div class="v">' + Math.round(past.rate * 100) + '%</div></div>' +
+    '<div class="kpi"><div class="k">已完成</div><div class="v">' + past.done + '/' + past.total + '</div></div>' +
+    '<div class="kpi"><div class="k">学习时长</div><div class="v">' + (past.doneMin / 60).toFixed(1) + 'h</div></div></div>' +
+    (ot.total
+      ? '<div class="hint" style="margin-top:10px">限时达标 ' + ot.onTime + '/' + ot.total +
+        '（' + Math.round(ot.rate * 100) + '%），超时 ' + ot.over + ' 次</div>'
+      : '<div class="hint" style="margin-top:10px">完成时填上「实际用时」，这里会算限时达标率</div>') +
+    '</div>';
+
+  html += '<div class="card"><h2>打卡热力图（每列一周）</h2>' + heat(S) +
+    '<div class="legend"><span><i style="background:var(--ok)"></i>全完成</span>' +
+    '<span><i style="background:color-mix(in srgb, var(--ok) 55%, var(--bg))"></i>部分</span>' +
+    '<span><i style="background:var(--bg);border:1px solid var(--line)"></i>未开始</span></div></div>';
+
+  html += '<div class="card"><h2>模考正确率（只有全真模考）</h2>' +
+    (mocks.length ? spark(mocks) : '<div class="empty">还没有全真模考数据</div>') +
+    '<div class="legend"><span><i style="background:var(--acc)"></i>听力 /25</span>' +
+    '<span><i style="background:var(--ok)"></i>阅读 /30</span>' +
+    '<span>虚线 = 60%</span></div></div>';
+
+  html += '<div class="card"><h2>平日练习均分（不进估分）</h2>' +
+    (prac.count
+      ? '<div class="kpis" style="margin-top:0">' +
+        '<div class="kpi"><div class="k">已练</div><div class="v">' + prac.count + ' 套</div></div>' +
+        '<div class="kpi"><div class="k">听力</div><div class="v">' + (prac.listenAvg == null ? '—' : prac.listenAvg.toFixed(1)) + '/25</div></div>' +
+        '<div class="kpi"><div class="k">阅读</div><div class="v">' + (prac.readAvg == null ? '—' : prac.readAvg.toFixed(1)) + '/30</div></div></div>'
+      : '<div class="empty">还没有练习记录</div>') +
+    '</div>';
+
+  html += '<div class="card"><h2>设置</h2>' +
+    '<label class="f"><span>考试日期</span><input type="date" id="s-exam" value="' + S.settings.examDate + '"></label>' +
+    '<label class="f"><span>开始日期</span><input type="date" id="s-start" value="' + S.settings.startDate + '"></label>' +
+    '<label class="f"><span>工作日预算（分钟）</span><input type="number" id="s-wd" min="20" max="300" value="' + S.settings.weekdayMin + '"></label>' +
+    '<label class="f"><span>周末预算（分钟）</span><input type="number" id="s-we" min="30" max="480" value="' + S.settings.weekendMin + '"></label>' +
+    '<label class="f"><span>目标分数（换档位会改变任务量：单词数 / 选词加练 / 合背）</span><input type="number" id="s-target" min="300" max="700" value="' + S.settings.target + '"></label>' +
+    '<button data-act="save-settings">保存并重排未来</button>' +
+    '<div class="hint" style="margin-top:8px">改日期或预算后，未来还没开始的任务会重新生成，已完成的不受影响。</div></div>';
+
+  const lastBackup = (S.flags && S.flags.lastBackup) || null;
+  const age = lastBackup ? diffDays(lastBackup, ctx.today) : null;
+  const backupLine = lastBackup
+    ? ('上次备份：' + (age <= 0 ? '今天' : age + ' 天前') + (age >= 7 ? '　⚠️ 该再备一次了' : ''))
+    : '还没备份过';
+
+  html += '<div class="card"><h2>数据备份（换手机前必做）</h2>' +
+    (ctx.fileMode
+      ? '<div class="notice warn" style="margin-bottom:12px">你现在是「文件方式」打开的，换手机或清缓存会丢。' +
+        '想长期用，把 web/ 里的文件传到一个网址上（见 <b>部署说明.md</b>），之后数据就跟着那个网址走。</div>'
+      : '<div class="hint" style="margin-bottom:11px">数据跟着这个网址走：只要网址不变，刷新、关浏览器、重启手机都还在。</div>') +
+    '<div class="row" style="margin-bottom:10px">' +
+    '<button data-act="copy-backup">复制备份码</button>' +
+    '<button class="ghost" data-act="restore-backup">用备份码恢复</button></div>' +
+    '<textarea id="backup-code" rows="3" placeholder="点上面「复制备份码」会生成一段文字，存到备忘录或微信文件传输助手；换设备时粘回来点恢复。" style="font-size:11px"></textarea>' +
+    '<div class="hint" style="margin-top:8px">' + backupLine + '</div></div>';
+
+  if (S.log && S.log.length) {
+    html += '<div class="card"><h2>最近的调整</h2><details class="acc" style="border:0">' +
+      '<summary>共 ' + S.log.length + ' 条，展开查看</summary><div class="body">' +
+      S.log.slice(0, 20).map(l => '<div style="padding:3px 0">· ' + esc(l.text) + '</div>').join('') +
+      '</div></details></div>';
+  }
+
+  html += '<div class="card"><h2>重置</h2>' +
+    '<button class="ghost" data-act="reset" style="color:var(--bad);width:100%">清空所有数据重来</button>' +
+    '<div class="hint" style="margin-top:8px">会删掉打卡记录和成绩，慎点。</div></div>';
+
+  return html;
+}
+
+function heat(S) {
+  const slots = new Array(56).fill(null);
+  S.days.forEach(d => {
+    const di = (dow(d.date) + 6) % 7;
+    const t = S.tasks.filter(x => x.date === d.date && x.st !== 'archived');
+    const done = t.filter(x => x.st === 'done' || x.st === 'part').length;
+    slots[di * 8 + d.week] = t.length === 0 ? '' : (done === t.length ? 'l3' : done > 0 ? (done / t.length > 0.5 ? 'l2' : 'l1') : '');
+  });
+  return '<div class="heat">' + slots.map(c => '<i class="' + (c || '') + '"></i>').join('') + '</div>';
+}
+
+// ---- src/app.js ----
+// 应用主控：路由、打卡、重排、备份
+
+const ctx = {
+  S: null,
+  today: todayStr(),
+  activeDate: '',
+  tab: 'today',
+  changes: [],
+  suggest: 0,
+  storageOk: true,
+  fileMode: false,
+  openWeeks: new Set(),
+  openDays: new Set()
+};
+
+let currentTask = null;
+
+// 有的浏览器（尤其手机直接打开本地文件）会禁止 localStorage。
+// 这种情况必须明确告诉用户，否则他会以为记录已经保存了。
+function probeStorage() {
+  try {
+    localStorage.setItem('cet6.probe', '1');
+    localStorage.removeItem('cet6.probe');
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+function persist() {
+  const ok = saveState(ctx.S);
+  if (!ok) ctx.storageOk = false;
+  return ok;
+}
+
+// ---------------- 启动 ----------------
+function init() {
+  const q = new URLSearchParams(location.search);
+  if (q.get('today')) ctx.today = q.get('today');
+  ctx.storageOk = probeStorage();
+  ctx.fileMode = location.protocol === 'file:';
+
+  const S0 = loadState();
+  let S = S0;
+  if (!S && q.get('selftest')) { S = createState(defaultConfig()); saveState(S); }
+  if (!S) {
+    renderOnboard();
+    return;
+  }
+  ctx.S = S;
+  if (q.get('demo')) seedDemo();
+
+  const w = weekOf(ctx.today);
+  ctx.openWeeks = new Set([w]);
+  ctx.openDays = new Set([ctx.today]);
+
+  settle();
+  render();
+
+  if (q.get('selftest')) runSelftest();
+}
+
+function weekOf(date) {
+  const S = ctx.S;
+  if (!S) return 0;
+  const d = S.days.find(x => x.date === date);
+  return d ? d.week : 0;
+}
+
+// 每天第一次打开：结算昨天、自动重排
+function settle() {
+  const res = replan(ctx.S, ctx.today);
+  ctx.S = res.state;
+  ctx.changes = res.changes || [];
+  ctx.changes.slice(0, 8).forEach(c => addLog(ctx.S, (c.title || '任务') + '：' + c.reason));
+  ctx.suggest = computeSuggest();
+  persist();
+}
+
+function computeSuggest() {
+  const from = addDays(ctx.today, -7);
+  const r = rangeRate(ctx.S, from, addDays(ctx.today, -1));
+  if (r.total < 5) return 0;
+  const s = suggestDegrade(r.rate);
+  return s > (ctx.S.settings.degrade || 0) ? s : 0;
+}
+
+// ---------------- 渲染 ----------------
+function render(keepScroll) {
+  const S = ctx.S;
+  if (!S) return;
+  const keepY = keepScroll ? (window.scrollY || 0) : 0;
+  ctx.activeDate = clampDate(ctx.today, S.settings.startDate, S.settings.examDate);
+
+  let html = '';
+  if (ctx.tab === 'today') html = viewToday(ctx);
+  else if (ctx.tab === 'plan') html = viewPlan(ctx);
+  else if (ctx.tab === 'papers') html = viewPapers(ctx);
+  else html = viewMore(ctx);
+
+  if (ctx.suggest) html = degradeBanner() + html;
+  if (!ctx.storageOk) html = storageBanner() + html;
+
+  document.getElementById('view').innerHTML = html;
+
+  const dp = dayProgress(S, ctx.activeDate);
+  const left = diffDays(ctx.today, S.settings.examDate);
+  document.getElementById('tb-sub').textContent =
+    left > 0 ? 'D-' + left + ' · 今日 ' + dp.done + '/' + dp.total : (left === 0 ? '今天考试' : '已结束');
+
+  document.querySelectorAll('.tabbar button').forEach(b => {
+    b.classList.toggle('on', b.getAttribute('data-tab') === ctx.tab);
+  });
+  window.scrollTo(0, keepY);
+}
+
+function storageBanner() {
+  return '<div class="notice warn">⚠️ 这个浏览器不允许本地保存（常见于手机直接打开本地文件）。' +
+    '请用「更多 → 复制备份码」手动保存，或者把 index.html 放到一个网址上再打开。</div>';
+}
+
+function degradeBanner() {
+  const name = ctx.suggest === 2 ? '保底' : '精简';
+  const desc = ctx.suggest === 2
+    ? '只保听力、阅读、词汇，写作翻译改成周末批量'
+    : '分项训练只做错题 + 1 段精听，写作翻译缩成提纲';
+  return '<div class="notice warn" data-act="apply-degrade">上周完成率偏低，建议切到「' + name + '模式」：' +
+    desc + '。<span class="x">点我开启 →</span></div>';
+}
+
+function clampDate(d, a, b) {
+  if (d < a) return a;
+  if (d > b) return b;
+  return d;
+}
+
+// ---------------- 交互 ----------------
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]');
+  if (!el) return;
+  const act = el.getAttribute('data-act');
+
+  if (act === 'tab') {
+    ctx.tab = el.getAttribute('data-tab');
+    render();
+    return;
+  }
+  if (act === 'task') { openTaskSheet(el.getAttribute('data-id')); return; }
+  if (act === 'set-status') { setStatus(currentTask, el.getAttribute('data-st')); return; }
+  if (act === 'week') {
+    const w = +el.getAttribute('data-w');
+    if (ctx.openWeeks.has(w)) ctx.openWeeks.delete(w); else ctx.openWeeks.add(w);
+    render(true);
+    return;
+  }
+  if (act === 'day') {
+    const d = el.getAttribute('data-date');
+    if (ctx.openDays.has(d)) ctx.openDays.delete(d); else ctx.openDays.add(d);
+    render(true);
+    return;
+  }
+  if (act === 'paper') { openPaperSheet(el.getAttribute('data-id')); return; }
+  if (act === 'save-paper') { savePaper(el.getAttribute('data-id')); return; }
+  if (act === 'replan') {
+    settle();
+    render();
+    toast(ctx.changes.length ? '已重排 ' + ctx.changes.length + ' 项' : '没有需要重排的任务');
+    return;
+  }
+  if (act === 'jump-today') {
+    ctx.today = todayStr();
+    ctx.openDays = new Set([ctx.today]);
+    settle();
+    render();
+    toast('已回到今天');
+    return;
+  }
+  if (act === 'changes') { openChangesSheet(); return; }
+  if (act === 'backlog') { openBacklogSheet(); return; }
+  if (act === 'apply-degrade') {
+    ctx.S = degrade(ctx.S, ctx.suggest, ctx.today);
+    addLog(ctx.S, '开启降载模式：' + (ctx.suggest === 2 ? '保底' : '精简'));
+    ctx.suggest = 0;
+    persist();
+    render();
+    toast('已降载，可在设置里恢复标准模式');
+    return;
+  }
+  if (act === 'save-settings') { saveSettings(); return; }
+  if (act === 'copy-backup') { copyBackup(); return; }
+  if (act === 'restore-backup') { restoreBackup(); return; }
+  if (act === 'reset') { resetAll(); return; }
+  if (act === 'create-plan') { createPlan(); return; }
+  if (act === 'backup-quick') {
+    ctx.tab = 'more';
+    render();
+    setTimeout(copyBackup, 60);
+    return;
+  }
+});
+
+function readNum(sel) {
+  const el = document.querySelector(sel);
+  if (!el) return null;
+  const v = el.value.trim();
+  if (v === '') return null;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+}
+
+function readVal(sel) {
+  const el = document.querySelector(sel);
+  return el ? el.value.trim() : '';
+}
+
+// ---------------- 任务弹层 ----------------
+function openTaskSheet(id) {
+  const t = ctx.S.tasks.find(x => x.id === id);
+  if (!t) return;
+  currentTask = t;
+  const paper = t.paper ? paperName(ctx.S, t.paper) : '';
+  const m = t.mods || [];
+  const p = t.paper ? ctx.S.papers.find(x => x.id === t.paper) : null;
+
+  let fields = '<label class="f"><span>实际用时（分钟，可不填）</span>' +
+    '<input type="number" id="t-actual" min="0" max="300" value="' + (t.actual || '') + '"></label>';
+
+  if (t.kind === 'mock' || m.includes('L')) {
+    fields += '<label class="f"><span>听力正确数（0–25）</span><input type="number" id="t-listen" min="0" max="25" value="' +
+      (p && p.mods.L.right != null ? p.mods.L.right : '') + '"></label>';
+  }
+  if (t.kind === 'mock' || m.includes('R')) {
+    fields += '<label class="f"><span>阅读正确数（0–30）</span><input type="number" id="t-read" min="0" max="30" value="' +
+      (p && p.mods.R.right != null ? p.mods.R.right : '') + '"></label>';
+  }
+  if (t.kind === 'mock' || m.includes('W')) {
+    fields += '<label class="f"><span>作文自评（0–15）</span><input type="number" id="t-write" min="0" max="15" value="' +
+      (p && p.mods.W.score != null ? p.mods.W.score : '') + '"></label>';
+  }
+  if (t.kind === 'mock' || m.includes('T')) {
+    fields += '<label class="f"><span>翻译自评（0–15）</span><input type="number" id="t-trans" min="0" max="15" value="' +
+      (p && p.mods.T.score != null ? p.mods.T.score : '') + '"></label>';
+  }
+
+  const unit = t.unit;
+  const doneField = unit
+    ? '<label class="f"><span>已完成多少（' + esc(unit.u) + '，共 ' + unit.n + '）</span>' +
+      '<input type="number" id="t-done" min="0" max="' + unit.n + '" value="' + (t.doneAmount || '') + '"></label>'
+    : '';
+
+  openSheet('<h3>' + esc(t.title) + '</h3>' +
+    '<div class="sub">' + mmdd(t.date) + ' · 限时 ' + (t.limit || t.min) + ' 分钟 · 预计 ' + t.min + ' 分钟' +
+    (paper ? ' · ' + esc(paper) : '') + (t.moves ? ' · 已顺延 ' + t.moves + ' 次' : '') + '</div>' +
+    (unit ? '<div class="hint" style="margin-bottom:10px">这项按「' + esc(unit.u) + '」计量，没做完就填做了多少，剩下的会自动排到后面。</div>' : '') +
+    fields.replace('实际用时（分钟，可不填）', '实际用时（分钟，可不填）') +
+    doneField +
+    '<div class="row"><button data-act="set-status" data-st="done">完成</button>' +
+    '<button class="ghost" data-act="set-status" data-st="part">记部分完成</button></div>' +
+    '<div class="row" style="margin-top:8px">' +
+    '<button class="ghost" data-act="set-status" data-st="skip">跳过</button>' +
+    '<button class="ghost" data-act="set-status" data-st="arch">移出计划</button></div>' +
+    '<div class="hint" style="margin-top:12px">「记部分完成」会按你填的数量扣减，剩余部分自动排进最近空档；「跳过」记为放弃、不再顺延；什么都不点，第二天也会自动顺延。</div>');
+}
+
+function setStatus(t, st) {
+  if (!t) return;
+  const actual = readNum('#t-actual');
+  if (actual != null) t.actual = actual;
+
+  // 部分完成：按「完成了多少」扣减，剩余部分标记 next=true，交给重排补进之后的任务
+  let spareId = null;
+  let remainText = '';
+
+  if (st === 'part') {
+    const doneN = readNum('#t-done');
+    const unit = t.unit;
+    let remainN = 0;
+    let remainMin = 0;
+    let suffix = '';
+    let ratio = 0.5;
+
+    if (unit && doneN != null && doneN >= unit.n) {
+      st = 'done';
+      t.doneAmount = unit.n;
+    } else if (unit && doneN != null && doneN >= 0) {
+      remainN = unit.n - doneN;
+      ratio = remainN / unit.n;
+      remainMin = Math.max(10, Math.round(t.min * ratio));
+      t.doneAmount = doneN;
+      suffix = '（还剩 ' + remainN + ' ' + unit.u + '）';
+      remainText = remainN + ' ' + unit.u;
+      addLog(ctx.S, '「' + t.title + '」记到 ' + doneN + '/' + unit.n + ' ' + unit.u + '，剩 ' + remainN + ' ' + unit.u);
+    } else {
+      remainMin = Math.max(10, Math.round(t.min / 2));
+      suffix = '（还剩一半）';
+      remainText = '一半';
+      addLog(ctx.S, '「' + t.title + '」记一半，剩余部分待补');
+    }
+
+    if (st === 'part' && remainMin > 0) {
+      spareId = 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+      ctx.S.tasks.push({
+        id: spareId,
+        date: ctx.today,
+        next: true,              // 关键标记：这条「剩余部分」必须补进之后的任务
+        kind: t.kind,
+        paper: t.paper,
+        mods: t.mods || [],
+        title: t.title.replace(/（[^（）]*）$/, '') + suffix,
+        min: remainMin,
+        limit: Math.max(5, Math.round((t.limit || t.min) * ratio)),
+        unit: unit && remainN ? { n: remainN, u: unit.u } : null,
+        note: '', half: t.half, st: 'todo', actual: 0, doneAmount: 0,
+        moves: 0, src: 'split'
+      });
+    }
+  }
+
+  if (st === 'done' || st === 'part') applyPaperResult(t);
+  t.st = st === 'arch' ? 'archived' : st;
+
+  const label = { done: '完成', part: '部分完成', skip: '跳过', arch: '移出计划' }[st] || st;
+  if (st === 'done') addLog(ctx.S, '「' + t.title + '」完成' + (t.actual ? '，用时 ' + t.actual + ' 分钟' : ''));
+  if (st === 'skip' || st === 'arch') addLog(ctx.S, '「' + t.title + '」' + label);
+
+  settle();
+  persist();
+  closeSheet();
+  render(true);
+
+  if (spareId) {
+    const landed = ctx.S.tasks.find(x => x.id === spareId);
+    if (landed && landed.st !== 'archived') {
+      toast('已补：剩 ' + remainText + ' 排到 ' + dowCN(landed.date) + ' ' + mmdd(landed.date) +
+        '（' + landed.min + ' 分钟）');
+    } else {
+      toast('已记 ' + remainText + '，剩余部分在欠账清单里');
+    }
+    return;
+  }
+
+  if (st === 'done') {
+    const limit = t.limit || t.min;
+    if (t.actual && limit && t.actual > limit + 2) toast('完成，超时 ' + (t.actual - limit) + ' 分钟');
+    else if (t.actual && limit && t.actual <= limit) toast('完成，在限时内 👍');
+    else toast('完成，已更新计划');
+  }
+}
+
+function applyPaperResult(t) {
+  if (!t.paper) return;
+  const p = ctx.S.papers.find(x => x.id === t.paper);
+  if (!p) return;
+  const L = readNum('#t-listen');
+  const R = readNum('#t-read');
+  const W = readNum('#t-write');
+  const T = readNum('#t-trans');
+
+  if (t.kind === 'mock') {
+    // 全真模考的分数单独算，别和平时练习混在一起
+    p.mode = t.half ? 'practice' : 'mock';
+    p.date = t.date;
+    if (t.half) {
+      if (L != null) { p.mods.L.st = 'done'; p.mods.L.right = clamp(L, 0, 25); }
+      if (R != null) { p.mods.R.st = 'done'; p.mods.R.right = clamp(R, 0, 30); }
+      if (p.mods.W.st === 'todo') p.mods.W.st = 'brief';
+      if (p.mods.T.st === 'todo') p.mods.T.st = 'brief';
+    } else {
+      p.mods.L.st = 'mock'; if (L != null) p.mods.L.right = clamp(L, 0, 25);
+      p.mods.R.st = 'mock'; if (R != null) p.mods.R.right = clamp(R, 0, 30);
+      p.mods.W.st = 'mock'; if (W != null) p.mods.W.score = clamp(W, 0, 15);
+      p.mods.T.st = 'mock'; if (T != null) p.mods.T.score = clamp(T, 0, 15);
+    }
+    return;
+  }
+  const m = t.mods || [];
+  if (m.length && p.mode === 'none') { p.mode = 'practice'; p.date = t.date; }
+  if (m.includes('L') && L != null) { p.mods.L.st = 'done'; p.mods.L.right = clamp(L, 0, 25); }
+  if (m.includes('R') && R != null) { p.mods.R.st = 'done'; p.mods.R.right = clamp(R, 0, 30); }
+  if (m.includes('W') && W != null) { p.mods.W.st = 'done'; p.mods.W.score = clamp(W, 0, 15); }
+  if (m.includes('T') && T != null) { p.mods.T.st = 'done'; p.mods.T.score = clamp(T, 0, 15); }
+}
+
+// ---------------- 真题弹层 ----------------
+function openPaperSheet(id) {
+  const p = ctx.S.papers.find(x => x.id === id);
+  if (!p) return;
+  openSheet('<h3>' + esc(p.label) + '</h3><div class="sub">只填你做过的项，留空表示还没做</div>' +
+    '<label class="f"><span>听力正确数（0–25）</span><input type="number" id="p-l" min="0" max="25" value="' + (p.mods.L.right != null ? p.mods.L.right : '') + '"></label>' +
+    '<label class="f"><span>阅读正确数（0–30）</span><input type="number" id="p-r" min="0" max="30" value="' + (p.mods.R.right != null ? p.mods.R.right : '') + '"></label>' +
+    '<label class="f"><span>作文自评（0–15）</span><input type="number" id="p-w" min="0" max="15" value="' + (p.mods.W.score != null ? p.mods.W.score : '') + '"></label>' +
+    '<label class="f"><span>翻译自评（0–15）</span><input type="number" id="p-t" min="0" max="15" value="' + (p.mods.T.score != null ? p.mods.T.score : '') + '"></label>' +
+    '<button data-act="save-paper" data-id="' + p.id + '">保存</button>');
+}
+
+function savePaper(id) {
+  const p = ctx.S.papers.find(x => x.id === id);
+  if (!p) return;
+  const L = readNum('#p-l');
+  const R = readNum('#p-r');
+  const W = readNum('#p-w');
+  const T = readNum('#p-t');
+  if (L != null || R != null || W != null || T != null) {
+    // 手动录入成绩时按这套题的用途归类：模考卷进估分，练习卷只进趋势
+    p.mode = p.role === 'mock' ? 'mock' : 'practice';
+    if (!p.date) p.date = ctx.today;
+  }
+  if (L != null) { p.mods.L.right = clamp(L, 0, 25); if (p.mods.L.st === 'todo') p.mods.L.st = 'done'; }
+  if (R != null) { p.mods.R.right = clamp(R, 0, 30); if (p.mods.R.st === 'todo') p.mods.R.st = 'done'; }
+  if (W != null) { p.mods.W.score = clamp(W, 0, 15); if (p.mods.W.st === 'todo') p.mods.W.st = 'done'; }
+  if (T != null) { p.mods.T.score = clamp(T, 0, 15); if (p.mods.T.st === 'todo') p.mods.T.st = 'done'; }
+  addLog(ctx.S, '录入 ' + p.label + ' 成绩');
+  persist();
+  closeSheet();
+  render();
+  toast('已保存');
+}
+
+// ---------------- 其它弹层 ----------------
+function openChangesSheet() {
+  const rows = ctx.changes.map(c =>
+    '<div style="padding:8px 0;border-top:1px solid var(--line)">' +
+    '<div>' + esc(c.title || '任务') + '</div>' +
+    '<div class="hint">' + (c.from ? mmdd(c.from) : '') + ' → ' + (c.to ? mmdd(c.to) : '归档（没排进考前）') +
+    ' · ' + esc(c.reason) + '</div></div>').join('');
+  openSheet('<h3>今天为你做的调整</h3><div class="sub">规则：先保模考和听力阅读，再保复盘，最后才是写译；模考日不塞东西。</div>' +
+    (rows || '<div class="empty">今天没有调整</div>') +
+    '<button class="ghost" style="width:100%;margin-top:12px" data-act="close-sheet">知道了</button>');
+}
+
+function openBacklogSheet() {
+  const bl = backlogTasks(ctx.S, ctx.today);
+  const rows = bl.map(t =>
+    '<div style="padding:8px 0;border-top:1px solid var(--line)">' +
+    '<div>' + esc(t.title) + '</div>' +
+    '<div class="hint">' + mmdd(t.date) + ' · ' + t.min + ' 分钟 · ' + esc(t.st === 'archived' ? '已归档' : '未完成') + '</div></div>').join('');
+  openSheet('<h3>欠账清单（' + bl.length + '）</h3>' +
+    '<div class="sub">「跳过」的任务会自动顺延；这里列出的是排不进去、已归档的。想补就点补，不想补就点放弃——不点也不会扣分。</div>' +
+    (rows || '<div class="empty">没有欠账，保持住</div>') +
+    '<div class="row" style="margin-top:12px">' +
+    '<button data-act="revive-backlog">全部补做（自动排期）</button>' +
+    '<button class="ghost" data-act="drop-backlog">全部放弃</button></div>');
+}
+
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]');
+  if (!el) return;
+  const act = el.getAttribute('data-act');
+  if (act === 'close-sheet') { closeSheet(); return; }
+  if (act === 'revive-backlog') {
+    const bl = backlogTasks(ctx.S, ctx.today);
+    bl.forEach(t => { t.st = 'todo'; });
+    settle();
+    persist();
+    closeSheet();
+    render();
+    toast('已放回待办并重新排期');
+    return;
+  }
+  if (act === 'drop-backlog') {
+    backlogTasks(ctx.S, ctx.today).forEach(t => {
+      t.st = 'archived';
+      t.note = (t.note ? t.note + '；' : '') + '你选择了放弃';
+    });
+    persist();
+    closeSheet();
+    render();
+    toast('已放弃这些欠账');
+    return;
+  }
+});
+
+// ---------------- 设置 / 备份 ----------------
+function saveSettings() {
+  const s = ctx.S.settings;
+  const exam = readVal('#s-exam');
+  const start = readVal('#s-start');
+  if (start && exam && start >= exam) { toast('开始日期必须早于考试日期'); return; }
+  if (exam) s.examDate = exam;
+  if (start) s.startDate = start;
+  s.weekdayMin = clamp(readNum('#s-wd') || s.weekdayMin, 20, 300);
+  s.weekendMin = clamp(readNum('#s-we') || s.weekendMin, 30, 480);
+  s.target = clamp(readNum('#s-target') || s.target, 300, 700);
+  rebuildFuture(ctx.S, ctx.today);
+  settle();
+  persist();
+  ctx.openWeeks = new Set([weekOf(ctx.today)]);
+  render();
+  toast('已保存，未来任务已重排');
+}
+
+function copyBackup() {
+  const code = encodeBackup(ctx.S);
+  const ta = document.getElementById('backup-code');
+  if (ta) ta.value = code;
+  ctx.S.flags.lastBackup = ctx.today;
+  persist();
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(code).then(
+      () => toast('备份码已复制，粘贴到备忘录保存'),
+      () => toast('已生成，长按文本框全选复制')
+    );
+  } else {
+    toast('已生成，长按文本框全选复制');
+  }
+  if (ta) { ta.focus(); ta.select(); }
+}
+
+function restoreBackup() {
+  const ta = document.getElementById('backup-code');
+  const code = ta ? ta.value.trim() : '';
+  if (!code) { toast('先把备份码粘贴到下面的文本框'); return; }
+  let S;
+  try {
+    S = decodeBackup(code);
+  } catch (e) {
+    toast(e.message);
+    return;
+  }
+  if (!confirm('用这段备份覆盖当前数据？当前打卡记录会被替换。')) return;
+  ctx.S = S;
+  ctx.today = todayStr();
+  settle();
+  persist();
+  render();
+  toast('已恢复');
+}
+
+function resetAll() {
+  if (!confirm('确定清空所有打卡记录和成绩？')) return;
+  if (!confirm('再确认一次：清空后无法恢复（除非你有备份码）。')) return;
+  clearState();
+  ctx.S = null;
+  renderOnboard();
+}
+
+// ---------------- 首次引导 ----------------
+function renderOnboard() {
+  const start = '2026-10-19' > todayStr() ? '2026-10-19' : addDays(todayStr(), 1);
+  document.getElementById('tb-sub').textContent = '先花 1 分钟建计划';
+  document.getElementById('view').innerHTML =
+    '<div class="onboard">' +
+    '<h1>六级 55 天冲刺</h1>' +
+    '<p>18 套真题、6 次全真模考，按天排好。没做完的会自动顺延到最近空档。</p>' +
+    '<div class="card">' +
+    '<label class="f"><span>考试日期</span><input type="date" id="o-exam" value="2026-12-12"></label>' +
+    '<label class="f"><span>开始日期</span><input type="date" id="o-start" value="' + start + '"></label>' +
+    '<label class="f"><span>目标分数</span><input type="number" id="o-target" min="300" max="700" value="425"></label>' +
+    '<div class="hint" id="o-hint" style="margin:-6px 0 14px">稳过 425：单词 30/天；阅读按周交替练；不加额外任务（这个档位最省时间）</div>' +
+    '<label class="f"><span>18 套真题的名字（每行一个，留空就用「真题 01–18」）</span>' +
+    '<textarea id="o-labels" rows="3" placeholder="2025.12 卷一&#10;2025.12 卷二&#10;…"></textarea></label>' +
+    '<button data-act="create-plan" style="width:100%">生成我的 55 天计划</button>' +
+    '</div>' +
+    '<div class="hint">默认：工作日 90 分钟、周末 180 分钟，可在「更多 → 设置」里改。<br>' +
+    '数据只存这台设备，记得每周点一次「复制备份码」。</div>' +
+    '</div>';
+}
+
+function createPlan() {
+  const start = readVal('#o-start') || addDays(todayStr(), 1);
+  const exam = readVal('#o-exam') || '2026-12-12';
+  if (start >= exam) { toast('开始日期要早于考试日期'); return; }
+
+  const target = clamp(readNum('#o-target') || 425, 300, 700);
+  const S = createState(Object.assign(defaultConfig(), {
+    startDate: start, examDate: exam, target: target
+  }));
+  S.settings.target = target;
+
+  const labels = (readVal('#o-labels') || '').split(/[\n,，]/).map(x => x.trim()).filter(Boolean);
+  if (labels.length === 18) S.papers = makePapers(labels);
+
+  S.onboarded = true;
+  S.log = [];
+
+  ctx.S = S;
+  ctx.today = todayStr();
+  ctx.openWeeks = new Set([0]);
+  ctx.openDays = new Set([ctx.today]);
+  settle();
+  persist();
+  render();
+  toast('计划已生成（' + tierOf(target).name + '）');
+}
+
+// ---------------- 演示数据（截图/自检用） ----------------
+function seedDemo() {
+  const S = ctx.S;
+  const past = S.tasks.filter(t => t.date < ctx.today).slice(0, 26);
+  past.forEach((t, i) => { if (i % 5 !== 4) t.st = 'done'; });
+  const papers = S.papers.slice(0, 3);
+  const scores = [[18, 21, 9, 8], [20, 23, 10, 9], [19, 24, 10, 8]];
+  papers.forEach((p, i) => {
+    p.mods.L.st = 'mock'; p.mods.L.right = scores[i][0];
+    p.mods.R.st = 'mock'; p.mods.R.right = scores[i][1];
+    p.mods.W.st = 'mock'; p.mods.W.score = scores[i][2];
+    p.mods.T.st = 'mock'; p.mods.T.score = scores[i][3];
+  });
+  addLog(ctx.S, '演示数据已注入');
+  persist();
+}
+
+// ---------------- 自检 ----------------
+function runSelftest() {
+  const out = [];
+  const ok = (name, cond, extra) => out.push((cond ? 'PASS ' : 'FAIL ') + name + (extra ? ' ' + extra : ''));
+  try {
+    const S0 = createState(defaultConfig());
+    ok('plan generated', S0.tasks.length > 120, '(' + S0.tasks.length + ')');
+    ok('18 papers', S0.papers.length === 18);
+
+    const t0 = S0.tasks.find(t => t.date === S0.settings.startDate);
+    t0.st = 'done';
+
+    const r = replan(S0, '2026-10-23');
+    ok('replan works', r.changes.length > 0, '(' + r.changes.length + ' changes)');
+
+    const byDate = {};
+    r.state.tasks.forEach(t => {
+      if (t.st === 'archived') return;
+      byDate[t.date] = (byDate[t.date] || 0) + t.min;
+    });
+    const over = Object.keys(byDate).filter(d => {
+      const wd = new Date(d + 'T00:00:00').getDay();
+      const cap = (wd === 0 || wd === 6) ? r.state.settings.weekendMin : r.state.settings.weekdayMin;
+      return byDate[d] > cap;
+    });
+    ok('no day over budget', over.length === 0, over.slice(0, 2).join(','));
+
+    const code = encodeBackup(r.state);
+    const back = decodeBackup(code);
+    ok('backup roundtrip', back.tasks.length === r.state.tasks.length);
+    ok('backup is text', /^CET6v1:[A-Za-z0-9+/=]+$/.test(code));
+
+    ctx.S = back;
+    ctx.today = '2026-10-23';
+    ctx.tab = 'today';
+    render();
+    const html = document.getElementById('view').innerHTML;
+    ok('today renders', html.indexOf('今天的任务') >= 0);
+    ok('no NaN/undefined', !/NaN|undefined/.test(html));
+
+    ctx.tab = 'papers'; render();
+    ok('papers renders', document.getElementById('view').innerHTML.indexOf('真题总览') >= 0);
+    ctx.tab = 'more'; render();
+    ok('more renders', document.getElementById('view').innerHTML.indexOf('学习统计') >= 0);
+
+    const all = out.every(x => x.charAt(0) === 'P');
+    document.getElementById('view').innerHTML =
+      '<pre id="selftest" style="font-size:12px;white-space:pre-wrap;line-height:1.7">' +
+      out.join('\n') + '\n\n' + (all ? 'SELFTEST OK' : 'SELFTEST FAIL') + '</pre>';
+    if (window.console) console.log(out.join('\n') + '\n' + (all ? 'SELFTEST OK' : 'SELFTEST FAIL'));
+  } catch (e) {
+    document.getElementById('view').innerHTML = '<pre id="selftest">SELFTEST ERROR ' + esc(e.message) + '\n' + esc(e.stack || '') + '</pre>';
+  }
+}
+
+window.addEventListener('beforeunload', () => { if (ctx.S) persist(); });
+document.addEventListener('visibilitychange', () => { if (document.hidden && ctx.S) persist(); });
+
+// 目标分数一改，实时告诉他会多做什么
+document.addEventListener('input', e => {
+  if (!e.target || e.target.id !== 'o-target') return;
+  const el = document.getElementById('o-hint');
+  if (!el) return;
+  const tier = tierOf(Number(e.target.value) || 425);
+  el.textContent = tier.name + '：' + tier.desc;
+});
+
+init();
+})();
+
+</script>
+</body>
+</html>
